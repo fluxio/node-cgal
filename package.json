@@ -1,0 +1,23 @@
+{
+  "name": "cgal",
+  "version": "4.2.0",
+  "description": "CGAL bindings for node.js",
+  "keywords": [
+    "CGAL",
+    "computational",
+    "geometry"
+  ],
+  "private": true,
+  "repository": {},
+  "devDependencies": {
+    "jasmine-node-karma": "1.6.1"
+  },
+  "scripts": {
+    "test": "scripts/test"
+  },
+  "engines": {
+    "node": ">=0.10.7"
+  },
+  "os": [ "darwin", "linux" ],
+  "cpu": [ "x64" ]
+}

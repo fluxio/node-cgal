@@ -1,0 +1,2 @@
+#!/bin/bash
+jasmine-node-karma --verbose --captureExceptions $JASMINE_NODE_OPTS test

@@ -1,0 +1,10 @@
+binding.gyp
+build/binding.Makefile
+build/cgal.target.mk
+build/config.gypi
+build/gyp-mac-tool
+build/Makefile
+build/Release/.deps/
+build/Release/linker.lock
+build/Release/obj.target/
+src/
