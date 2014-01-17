@@ -22,7 +22,8 @@ CGALWrapper<WrapperClass, CGALClass>::~CGALWrapper()
 
 
 template<typename WrapperClass, typename CGALClass>
-void CGALWrapper<WrapperClass, CGALClass>::Init(v8::Handle<v8::Object> exports)
+template<typename ParentScope>
+void CGALWrapper<WrapperClass, CGALClass>::Init(v8::Handle<ParentScope> exports)
 {
     // In some circumstances, our module init gets called more than once within the same process by
     // node.  We need to be careful to avoid re-initializing our static constructor template,

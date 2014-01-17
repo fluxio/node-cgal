@@ -13,7 +13,9 @@ public:
     CGALWrapper();
     virtual ~CGALWrapper();
 
-    static void Init(v8::Handle<v8::Object> exports);
+    template<typename ParentScope>
+    static void Init(v8::Handle<ParentScope> exports);
+
     static v8::Handle<v8::Value> New(const CGALClass &CGALInstance);
 
     template<typename OutputIterator>

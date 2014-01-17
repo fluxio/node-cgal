@@ -5,14 +5,18 @@
 #include "v8.h"
 #include "Arrangement2.h"
 #include "BBox2.h"
+#include "Curve2.h"
 #include "D2.h"
+#include "Direction2.h"
 #include "Line2.h"
 #include "NefPolyhedron2.h"
 #include "Point2.h"
 #include "Polygon2.h"
 #include "PolygonSet2.h"
 #include "PolygonWithHoles2.h"
+#include "Ray2.h"
 #include "Segment2.h"
+#include "Vector2.h"
 
 using namespace std;
 using namespace v8;
@@ -42,7 +46,12 @@ namespace {
         ON_BOUNDED_SIDE = CGAL::ON_BOUNDED_SIDE,
         OBTUSE = CGAL::OBTUSE,
         RIGHT = CGAL::RIGHT,
-        ACUTE = CGAL::ACUTE
+        ACUTE = CGAL::ACUTE,
+        ARR_LEFT_BOUNDARY = CGAL::ARR_LEFT_BOUNDARY,
+        ARR_RIGHT_BOUNDARY = CGAL::ARR_RIGHT_BOUNDARY,
+        ARR_BOTTOM_BOUNDARY = CGAL::ARR_BOTTOM_BOUNDARY,
+        ARR_TOP_BOUNDARY = CGAL::ARR_TOP_BOUNDARY,
+        ARR_INTERIOR = CGAL::ARR_INTERIOR
     };
 
 }
@@ -74,15 +83,24 @@ void init(Handle<Object> exports)
     NODE_DEFINE_CONSTANT(exports, OBTUSE);
     NODE_DEFINE_CONSTANT(exports, RIGHT);
     NODE_DEFINE_CONSTANT(exports, ACUTE);
+    NODE_DEFINE_CONSTANT(exports, ARR_LEFT_BOUNDARY);
+    NODE_DEFINE_CONSTANT(exports, ARR_RIGHT_BOUNDARY);
+    NODE_DEFINE_CONSTANT(exports, ARR_BOTTOM_BOUNDARY);
+    NODE_DEFINE_CONSTANT(exports, ARR_TOP_BOUNDARY);
+    NODE_DEFINE_CONSTANT(exports, ARR_INTERIOR);
 
     Arrangement2::Init(exports);
     BBox2::Init(exports);
+    Curve2::Init(exports);
     D2::Init(exports);
+    Direction2::Init(exports);
     Line2::Init(exports);
     NefPolyhedron2::Init(exports);
     Point2::Init(exports);
     Polygon2::Init(exports);
     PolygonSet2::Init(exports);
     PolygonWithHoles2::Init(exports);
+    Ray2::Init(exports);
     Segment2::Init(exports);
+    Vector2::Init(exports);
 }
