@@ -5,16 +5,26 @@ using namespace v8;
 using namespace node;
 using namespace std;
 
+namespace {
+
+    enum {
+        EXCLUDED = Nef_polyhedron_2::EXCLUDED,
+        INCLUDED = Nef_polyhedron_2::INCLUDED,
+        EMPTY = Nef_polyhedron_2::EMPTY,
+        COMPLETE = Nef_polyhedron_2::COMPLETE
+    };
+
+}
 
 const char *NefPolyhedron2::Name = "NefPolyhedron2";
 
 
 void NefPolyhedron2::RegisterMethods()
 {
-    NODE_DEFINE_CONSTANT(sConstructorTemplate, Nef_polyhedron_2::EXCLUDED);
-    NODE_DEFINE_CONSTANT(sConstructorTemplate, Nef_polyhedron_2::INCLUDED);
-    NODE_DEFINE_CONSTANT(sConstructorTemplate, Nef_polyhedron_2::EMPTY);
-    NODE_DEFINE_CONSTANT(sConstructorTemplate, Nef_polyhedron_2::COMPLETE);
+    NODE_DEFINE_CONSTANT(sConstructorTemplate, EXCLUDED);
+    NODE_DEFINE_CONSTANT(sConstructorTemplate, INCLUDED);
+    NODE_DEFINE_CONSTANT(sConstructorTemplate, EMPTY);
+    NODE_DEFINE_CONSTANT(sConstructorTemplate, COMPLETE);
 }
 
 

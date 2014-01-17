@@ -78,7 +78,7 @@ Handle<Value> ConvexPartition2(const Arguments& args)
         ARGS_PARSE_LOCAL(Polygon2::ParseArg, Polygon_2, inputPoly, args[0]);
         Partition_Traits partition_traits;
         list<Partition_Traits::Polygon_2> partition;
-        CGAL::greene_approx_convex_partition_2(
+        CGAL::approx_convex_partition_2(
             inputPoly.vertices_begin(), inputPoly.vertices_end(),
             back_inserter(partition),
             partition_traits

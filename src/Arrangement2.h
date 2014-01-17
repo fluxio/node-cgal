@@ -37,11 +37,35 @@ private:
     //      the semantics and names of CGAL::Arrangement_2 methods.
     //
 
-    static v8::Handle<v8::Value> InsertLines(const v8::Arguments &args);
+    static v8::Handle<v8::Value> Clear(const v8::Arguments &args);
     static v8::Handle<v8::Value> IsEmpty(const v8::Arguments &args);
+    static v8::Handle<v8::Value> IsValid(const v8::Arguments &args);
+    static v8::Handle<v8::Value> InsertLines(const v8::Arguments &args); // deprecated
+    static v8::Handle<v8::Value> Insert(const v8::Arguments &args);
     static v8::Handle<v8::Value> NumberOfVertices(const v8::Arguments &args);
+    static v8::Handle<v8::Value> NumberOfIsolatedVertices(const v8::Arguments &args);
+    static v8::Handle<v8::Value> Vertices(const v8::Arguments &args);
+    static v8::Handle<v8::Value> NumberOfVerticesAtInfinity(const v8::Arguments &args);
+    static v8::Handle<v8::Value> UnboundedFace(const v8::Arguments &args);
     static v8::Handle<v8::Value> NumberOfFaces(const v8::Arguments &args);
+    static v8::Handle<v8::Value> Faces(const v8::Arguments &args);
+    static v8::Handle<v8::Value> NumberOfUnboundedFaces(const v8::Arguments &args);
+    static v8::Handle<v8::Value> UnboundedFaces(const v8::Arguments &args);
+    static v8::Handle<v8::Value> FictitiousFace(const v8::Arguments &args);
+    static v8::Handle<v8::Value> NumberOfHalfedges(const v8::Arguments &args);
+    static v8::Handle<v8::Value> Halfedges(const v8::Arguments &args);
     static v8::Handle<v8::Value> NumberOfEdges(const v8::Arguments &args);
+    static v8::Handle<v8::Value> Edges(const v8::Arguments &args);
+    static v8::Handle<v8::Value> InsertInFaceInterior(const v8::Arguments &args);
+    static v8::Handle<v8::Value> InsertFromLeftVertex(const v8::Arguments &args);
+    static v8::Handle<v8::Value> InsertFromRightVertex(const v8::Arguments &args);
+    static v8::Handle<v8::Value> InsertAtVertices(const v8::Arguments &args);
+    static v8::Handle<v8::Value> ModifyVertex(const v8::Arguments &args);
+    static v8::Handle<v8::Value> RemoveIsolatedVertex(const v8::Arguments &args);
+    static v8::Handle<v8::Value> ModifyEdge(const v8::Arguments &args);
+    static v8::Handle<v8::Value> SplitEdge(const v8::Arguments &args);
+    static v8::Handle<v8::Value> MergeEdge(const v8::Arguments &args);
+    static v8::Handle<v8::Value> RemoveEdge(const v8::Arguments &args);
 
 };
 

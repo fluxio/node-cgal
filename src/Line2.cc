@@ -31,9 +31,9 @@ bool Line2::ParseArg(Local<Value> arg, Line_2 &receiver)
 
     } else if (arg->IsObject()) {
 
-        // This supports e.g.: newline = new CGAL.Line2({a:,b:,c:});
         Local<Object> inits = Local<Object>::Cast(arg);
 
+        // This supports e.g.: newline = new CGAL.Line2({a:,b:,c:});
         if (inits->Get(String::NewSymbol("a"))->IsNumber() &&
             inits->Get(String::NewSymbol("b"))->IsNumber() &&
             inits->Get(String::NewSymbol("c"))->IsNumber())
