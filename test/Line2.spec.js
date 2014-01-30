@@ -1,7 +1,7 @@
 describe("CGAL.Line2", function() {
     'use strict';
 
-    var CGAL = require('cgal');
+    var CGAL = require('..');
 
     it("should be constructable from coefficients", function() {
         expect(function() { return new CGAL.Line2({a:1, b:2, c:3}); }).not.toThrow();

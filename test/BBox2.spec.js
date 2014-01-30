@@ -1,7 +1,7 @@
 describe("CGAL.BBox2", function() {
     'use strict';
 
-    var CGAL = require('cgal');
+    var CGAL = require('..');
 
     it("should be constructable from limits", function() {
         expect(function() { return new CGAL.BBox2({xmin:1, ymin:2, xmax:3, ymax:4}); }).not.toThrow();

@@ -1,7 +1,7 @@
 describe("CGAL.PolygonWithHoles2", function() {
     'use strict';
 
-    var CGAL = require('cgal');
+    var CGAL = require('..');
 
     it("should be constructable from an object with arrays of points", function() {
         expect(function() { return new CGAL.PolygonWithHoles2({outer:[[0,0], [1,1], [0,2]], holes: []}); }).not.toThrow();

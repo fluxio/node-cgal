@@ -1,7 +1,7 @@
 describe("CGAL.Segment2", function() {
     'use strict';
 
-    var CGAL = require('cgal');
+    var CGAL = require('..');
 
     it("should be constructable from two points", function() {
         expect(function() { return new CGAL.Segment2({source:[0,0], target:[1,1]}); }).not.toThrow();

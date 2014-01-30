@@ -1,7 +1,7 @@
 describe("CGAL.PolygontSet2", function() {
     'use strict';
 
-    var CGAL = require('cgal');
+    var CGAL = require('..');
 
     it("should be constructable with no args, Polygon2, or PolygonWithHoles2", function() {
         var p2 = new CGAL.Polygon2([[0,0],[1,0],[1,1],[0,1]]);

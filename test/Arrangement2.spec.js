@@ -1,7 +1,7 @@
 describe("CGAL.Arrangement2", function() {
     'use strict';
 
-    var CGAL = require('cgal');
+    var CGAL = require('..');
 
     var l1, l2, l3, arr;
 
