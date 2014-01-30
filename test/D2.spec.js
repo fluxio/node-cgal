@@ -1,7 +1,7 @@
 describe("CGAL.convexPartition2", function() {
     'use strict';
 
-    var CGAL = require('cgal');
+    var CGAL = require('..');
 
     it("should convexify a concave poly", function() {
         var result = CGAL.convexPartition2([[0,0],[5,5],[10,0],[10,10],[0,10]]);
@@ -35,7 +35,7 @@ describe("CGAL.convexPartition2", function() {
 describe("CGAL.convexHull2", function() {
     'use strict';
 
-    var CGAL = require('cgal');
+    var CGAL = require('..');
 
     it("should convexify a set of points", function() {
         var result = CGAL.convexHull2([[0,0],[5,5],[10,0],[10,10],[0,10]]);
@@ -62,7 +62,7 @@ describe("CGAL.convexHull2", function() {
 describe("CGAL.doIntersect", function() {
     'use strict';
 
-    var CGAL = require('cgal');
+    var CGAL = require('..');
 
     var poly1 = new CGAL.Polygon2([[0,0],[4,0],[0,4]]);
     var poly2 = new CGAL.Polygon2([[0,0],[4,4],[0,4]]);

@@ -1,7 +1,7 @@
 describe("CGAL.Polygon2", function() {
     'use strict';
 
-    var CGAL = require('cgal');
+    var CGAL = require('..');
 
     it("should be constructable from an array of points", function() {
         expect(function() { return new CGAL.Polygon2([[0,0], [1,1], [0,2]]); }).not.toThrow();

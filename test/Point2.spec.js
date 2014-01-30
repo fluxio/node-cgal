@@ -1,7 +1,7 @@
 describe("CGAL.Point2", function() {
     'use strict';
 
-    var CGAL = require('cgal');
+    var CGAL = require('..');
 
     it("should be constructable from an array", function() {
         expect(function() { return new CGAL.Point2([0,0]); }).not.toThrow();
