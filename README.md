@@ -1,6 +1,8 @@
 cgal
 ====
 
+[![Build Status](https://travis-ci.org/Vannevartech/cgal.png?branch=master)](https://travis-ci.org/Vannevartech/cgal)
+
 A node.js module providing access to parts of the CGAL computational geometry library (non-SWIG).
 
 - Prerequisite: you will need to have the CGAL libraries and headers installed on your build and
