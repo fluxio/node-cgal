@@ -47,6 +47,7 @@ void Arrangement2::RegisterMethods()
     SetPrototypeMethod(sConstructorTemplate, "splitEdge", SplitEdge);
     SetPrototypeMethod(sConstructorTemplate, "mergeEdge", MergeEdge);
     SetPrototypeMethod(sConstructorTemplate, "removeEdge", RemoveEdge);
+    SetPrototypeMethod(sConstructorTemplate, "removeEdgeAndMerge", RemoveEdgeAndMerge);
 
     Arrangement2Face::Init(sConstructorTemplate);
     Arrangement2Halfedge::Init(sConstructorTemplate);
@@ -703,6 +704,30 @@ Handle<Value> Arrangement2::RemoveEdge(const v8::Arguments &args)
             && args[2]->IsBoolean())
         {
             return scope.Close(Arrangement2Face::New(arrangement.remove_edge(edge, args[1]->BooleanValue(), args[2]->BooleanValue())));
+        }
+
+        ARGS_ASSERT(false);
+
+    }
+    catch (const exception &e) {
+        return ThrowException(String::New(e.what()));
+    }
+}
+
+
+Handle<Value> Arrangement2::RemoveEdgeAndMerge(const v8::Arguments &args)
+{
+    HandleScope scope;
+    try {
+
+        Arrangement_2 &arrangement = ExtractWrapped(args.This());
+
+        Arrangement_2::Halfedge_handle edge;
+
+        if ((args.Length() == 1)
+            && Arrangement2Halfedge::ParseArg(args[0], edge))
+        {
+            return scope.Close(Arrangement2Face::New(remove_edge(arrangement, edge)));
         }
 
         ARGS_ASSERT(false);
