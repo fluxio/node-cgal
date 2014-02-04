@@ -66,6 +66,7 @@ private:
     static v8::Handle<v8::Value> SplitEdge(const v8::Arguments &args);
     static v8::Handle<v8::Value> MergeEdge(const v8::Arguments &args);
     static v8::Handle<v8::Value> RemoveEdge(const v8::Arguments &args);
+    static v8::Handle<v8::Value> RemoveEdgeAndMerge(const v8::Arguments &args);
 
 };
 
