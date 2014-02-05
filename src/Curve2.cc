@@ -184,7 +184,3 @@ Handle<Value> Curve2::Target(const v8::Arguments &args)
         return ThrowException(String::New(e.what()));
     }
 }
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<Curve2, Curve_2>;

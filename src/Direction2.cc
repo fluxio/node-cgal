@@ -204,7 +204,3 @@ Handle<Value> Direction2::DY(const v8::Arguments &args)
         return ThrowException(String::New(e.what()));
     }
 }
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<Direction2, Direction_2>;

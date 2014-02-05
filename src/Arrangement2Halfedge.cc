@@ -14,6 +14,7 @@ const char *Arrangement2Halfedge::Name = "Halfedge";
 
 void Arrangement2Halfedge::RegisterMethods()
 {
+    SetPrototypeMethod(sConstructorTemplate, "toString", ToString);
     SetPrototypeMethod(sConstructorTemplate, "isFictitious", IsFictitious);
     SetPrototypeMethod(sConstructorTemplate, "source", Source);
     SetPrototypeMethod(sConstructorTemplate, "target", Target);
@@ -48,6 +49,20 @@ Handle<Value> Arrangement2Halfedge::ToPOD(const Arrangement_2::Halfedge_handle &
     HandleScope scope;
     Local<Object> obj = Object::New();
     return scope.Close(obj);
+}
+
+
+Handle<Value> Arrangement2Halfedge::ToString(const v8::Arguments &args)
+{
+    HandleScope scope;
+    Arrangement_2::Halfedge_handle &edge = ExtractWrapped(args.This());
+    ostringstream str;
+    str << "[object "  << Name << " " << edge.ptr() << " ";
+    if (edge->is_fictitious()) { 
+        str << "FIC ";
+    } 
+    str << "]";
+    return scope.Close(String::New(str.str().c_str()));
 }
 
 
@@ -173,8 +188,3 @@ Handle<Value> Arrangement2Halfedge::Curve(const v8::Arguments &args)
         return ThrowException(String::New(e.what()));
     }
 }
-
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<Arrangement2Halfedge, Arrangement_2::Halfedge_handle>;

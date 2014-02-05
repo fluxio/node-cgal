@@ -36,6 +36,7 @@ private:
     //      the semantics and names of CGAL::Arrangement_2::Vertex methods.
     //
 
+    static v8::Handle<v8::Value> ToString(const v8::Arguments &args);
     static v8::Handle<v8::Value> IsAtOpenBoundary(const v8::Arguments &args);
     static v8::Handle<v8::Value> IsIsolated(const v8::Arguments &args);
     static v8::Handle<v8::Value> Degree(const v8::Arguments &args);

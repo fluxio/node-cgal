@@ -155,7 +155,3 @@ Handle<Value> Line2::Opposite(const Arguments &args)
         return ThrowException(String::New(e.what()));
     }
 }
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<Line2, Line_2>;

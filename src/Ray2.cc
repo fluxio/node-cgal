@@ -289,7 +289,3 @@ Handle<Value> Ray2::CollinearHasOn(const v8::Arguments &args)
         return ThrowException(String::New(e.what()));
     }
 }
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<Ray2, Ray_2>;

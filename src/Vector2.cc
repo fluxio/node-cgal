@@ -75,7 +75,3 @@ Handle<Value> Vector2::ToPOD(const Vector_2 &vector)
     obj->Set(String::NewSymbol("y"), Number::New(CGAL::to_double(vector.y())));
     return scope.Close(obj);
 }
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<Vector2, Vector_2>;

@@ -36,6 +36,7 @@ private:
     //      the semantics and names of CGAL::Arrangement_2::Face methods.
     //
 
+    static v8::Handle<v8::Value> ToString(const v8::Arguments &args);
     static v8::Handle<v8::Value> IsFictitious(const v8::Arguments &args);
     static v8::Handle<v8::Value> IsUnbounded(const v8::Arguments &args);
     static v8::Handle<v8::Value> OuterCCB(const v8::Arguments &args);

@@ -51,8 +51,3 @@ Handle<Value> NefPolyhedron2::ToPOD(const Nef_polyhedron_2 &nef)
     Local<Object> obj = Object::New();
     return scope.Close(obj);
 }
-
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<NefPolyhedron2, Nef_polyhedron_2>;
