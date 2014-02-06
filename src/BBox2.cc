@@ -96,8 +96,3 @@ v8::Handle<v8::Value> BBox2::Add(const v8::Arguments &args)
         return ThrowException(String::New(e.what()));
     }
 }
-
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<BBox2, Bbox_2>;

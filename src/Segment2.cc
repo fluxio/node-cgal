@@ -91,7 +91,3 @@ Handle<Value> Segment2::IsVertical(const Arguments &args)
         return ThrowException(String::New(e.what()));
     }
 }
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<Segment2, Segment_2>;

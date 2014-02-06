@@ -13,6 +13,7 @@ const char *Arrangement2Face::Name = "Face";
 
 void Arrangement2Face::RegisterMethods()
 {
+    SetPrototypeMethod(sConstructorTemplate, "toString", ToString);
     SetPrototypeMethod(sConstructorTemplate, "isFictitious", IsFictitious);
     SetPrototypeMethod(sConstructorTemplate, "isUnbounded", IsUnbounded);
     SetPrototypeMethod(sConstructorTemplate, "outerCCB", OuterCCB);
@@ -43,6 +44,36 @@ Handle<Value> Arrangement2Face::ToPOD(const Arrangement_2::Face_handle &face)
     HandleScope scope;
     Local<Object> obj = Object::New();
     return scope.Close(obj);
+}
+
+
+Handle<Value> Arrangement2Face::ToString(const v8::Arguments &args)
+{
+    HandleScope scope;
+    Arrangement_2::Face_handle &face = ExtractWrapped(args.This());
+    ostringstream str;
+    str << "[object "  << Name << " " << face.ptr() << " ";
+    if (face->is_fictitious()) { 
+        str << "FIC ";
+    } else if (face->is_unbounded()) {
+        str << "UNB ";
+    }
+    int numedges = 0;
+    if (face->has_outer_ccb()) {
+        Arrangement_2::Ccb_halfedge_circulator e, e0;
+        e = e0 = face->outer_ccb();
+        do { ++numedges; } while(++e != e0);
+    }
+    str << "E:" << numedges << " ";
+    int numholes = 0;
+    Arrangement_2::Hole_iterator h;
+    for(h=face->holes_begin(); h!=face->holes_end(); ++h,++numholes) {}
+    str << "H:" << numholes << " ";
+    int numisolated = 0;
+    Arrangement_2::Isolated_vertex_iterator i;
+    for(i=face->isolated_vertices_begin(); i!=face->isolated_vertices_end(); ++i,++numisolated) {}
+    str << "I:" << numisolated << "]";
+    return scope.Close(String::New(str.str().c_str()));
 }
 
 
@@ -137,7 +168,3 @@ Handle<Value> Arrangement2Face::IsolatedVertices(const v8::Arguments &args)
         return ThrowException(String::New(e.what()));
     }
 }
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<Arrangement2Face, Arrangement_2::Face_handle>;

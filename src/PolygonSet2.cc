@@ -450,8 +450,3 @@ Handle<Value> PolygonSet2::IsValid(const Arguments &args)
         return ThrowException(String::New(e.what()));
     }
 }
-
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<PolygonSet2, Polygon_set_2>;

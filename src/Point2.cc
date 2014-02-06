@@ -83,24 +83,3 @@ Handle<Value> Point2::Y(const Arguments &args)
         return ThrowException(String::New(e.what()));
     }
 }
-
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<Point2, Point_2>;
-
-template bool CGALWrapper<Point2, Point_2>::ParseSeqArg(
-    v8::Local<v8::Value> arg, std::back_insert_iterator<std::list<Point_2> >
-);
-
-template bool CGALWrapper<Point2, Point_2>::ParseSeqArg(
-    v8::Local<v8::Value> arg, std::back_insert_iterator<std::vector<Point_2> >
-);
-
-template bool CGALWrapper<Point2, Point_2>::ParseSeqArg(
-    v8::Local<v8::Value> arg, std::back_insert_iterator<Polygon_2>
-);
-
-template v8::Handle<v8::Value> CGALWrapper<Point2, Point_2>::SeqToPOD(
-    std::vector<Point_2>::iterator first, std::vector<Point_2>::iterator last
-);

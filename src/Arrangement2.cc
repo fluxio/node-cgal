@@ -18,6 +18,7 @@ const char *Arrangement2::Name = "Arrangement2";
 
 void Arrangement2::RegisterMethods()
 {
+    SetPrototypeMethod(sConstructorTemplate, "toString", ToString);
     SetPrototypeMethod(sConstructorTemplate, "clear", Clear);
     SetPrototypeMethod(sConstructorTemplate, "isEmpty", IsEmpty);
     SetPrototypeMethod(sConstructorTemplate, "isValid", IsValid);
@@ -106,6 +107,19 @@ Handle<Value> Arrangement2::ToPOD(const Arrangement_2 &arrangement)
     }
 
     return scope.Close(obj);
+}
+
+
+Handle<Value> Arrangement2::ToString(const v8::Arguments &args)
+{
+    HandleScope scope;
+    Arrangement_2 &arrangement = ExtractWrapped(args.This());
+    ostringstream str;
+    str << "[object "  << Name << " " << &arrangement << " ";
+    str << "F:" << arrangement.number_of_faces() << " ";
+    str << "V:" << arrangement.number_of_vertices() << " ";
+    str << "E:" << arrangement.number_of_edges() << "]";
+    return scope.Close(String::New(str.str().c_str()));
 }
 
 
@@ -737,7 +751,3 @@ Handle<Value> Arrangement2::RemoveEdgeAndMerge(const v8::Arguments &args)
         return ThrowException(String::New(e.what()));
     }
 }
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<Arrangement2, Arrangement_2>;

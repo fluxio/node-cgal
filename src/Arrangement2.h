@@ -37,6 +37,7 @@ private:
     //      the semantics and names of CGAL::Arrangement_2 methods.
     //
 
+    static v8::Handle<v8::Value> ToString(const v8::Arguments &args);
     static v8::Handle<v8::Value> Clear(const v8::Arguments &args);
     static v8::Handle<v8::Value> IsEmpty(const v8::Arguments &args);
     static v8::Handle<v8::Value> IsValid(const v8::Arguments &args);

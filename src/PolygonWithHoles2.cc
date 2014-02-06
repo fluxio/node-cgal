@@ -143,13 +143,3 @@ Handle<Value> PolygonWithHoles2::IsUnbounded(const Arguments &args)
         return ThrowException(String::New(e.what()));
     }
 }
-
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<PolygonWithHoles2, Polygon_with_holes_2>;
-
-template v8::Handle<v8::Value> CGALWrapper<PolygonWithHoles2, Polygon_with_holes_2>::SeqToPOD(
-    std::vector<Polygon_with_holes_2>::iterator first,
-    std::vector<Polygon_with_holes_2>::iterator last
-);

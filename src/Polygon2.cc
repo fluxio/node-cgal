@@ -159,24 +159,3 @@ Handle<Value> Polygon2::Area(const Arguments &args)
         return ThrowException(String::New(e.what()));
     }
 }
-
-
-//----- Explicit instantiations here since we are a shared library:
-
-template class CGALWrapper<Polygon2, Polygon_2>;
-
-template bool CGALWrapper<Polygon2, Polygon_2>::ParseSeqArg(
-    v8::Local<v8::Value>, std::back_insert_iterator<std::list<Polygon_2> >
-);
-
-template bool CGALWrapper<Polygon2, Polygon_2>::ParseSeqArg(
-    v8::Local<v8::Value>, std::back_insert_iterator<std::vector<Polygon_2> >
-);
-
-template v8::Handle<v8::Value> CGALWrapper<Polygon2, Polygon_2>::SeqToPOD(
-    std::vector<Polygon_2>::iterator, std::vector<Polygon_2>::iterator
-);
-
-template v8::Handle<v8::Value> CGALWrapper<Polygon2, Polygon_2>::SeqToPOD(
-    Hole_const_iterator, Hole_const_iterator
-);
