@@ -13,7 +13,9 @@
     "jasmine-node-karma": "1.6.1"
   },
   "scripts": {
-    "test": "scripts/test"
+    "test": "scripts/test",
+    "preinstall": "node-gyp configure && node-gyp build",
+    "clean": "node-gyp clean && rm -rf build"
   },
   "engines": {
     "node": ">=0.10.7"
