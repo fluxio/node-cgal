@@ -14,7 +14,7 @@
   },
   "scripts": {
     "test": "scripts/test",
-    "preinstall": "node-gyp configure && node-gyp build",
+    "preinstall": "node-gyp configure && node-gyp build -j 4",
     "clean": "node-gyp clean && rm -rf build"
   },
   "engines": {
