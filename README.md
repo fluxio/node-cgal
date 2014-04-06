@@ -1,5 +1,5 @@
-cgal
-====
+node-cgal
+=========
 
 [![Build Status](https://travis-ci.org/Vannevartech/cgal.png?branch=master)](https://travis-ci.org/Vannevartech/cgal)
 
