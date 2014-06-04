@@ -17,7 +17,7 @@ describe("CGAL.PolygontSet2", function() {
         var pset2 = new CGAL.PolygonSet2();
         var p2 = new CGAL.Polygon2([[0,0],[1,0],[1,1],[0,1]]);
         pset2.insert(p2);
-        expect(JSON.stringify(pset2.toPOD()))
+        expect(JSON.stringify(pset2.toPOD(false)))
             .toEqual('[{"outer":[[0,0],[1,0],[1,1],[0,1]],"holes":[]}]');
     });
 

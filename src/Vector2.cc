@@ -61,13 +61,13 @@ bool Vector2::ParseArg(Local<Value> arg, Vector_2 &receiver)
             return true;
         }
 
-    } 
+    }
 
     return false;
 }
 
 
-Handle<Value> Vector2::ToPOD(const Vector_2 &vector)
+Handle<Value> Vector2::ToPOD(const Vector_2 &vector, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();

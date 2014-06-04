@@ -117,12 +117,12 @@ bool Ray2::ParseArg(Local<Value> arg, Ray_2 &receiver)
 }
 
 
-Handle<Value> Ray2::ToPOD(const Ray_2 &ray)
+Handle<Value> Ray2::ToPOD(const Ray_2 &ray, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("p"), Point2::ToPOD(ray.source()));
-    obj->Set(String::NewSymbol("d"), Direction2::ToPOD(ray.direction()));
+    obj->Set(String::NewSymbol("p"), Point2::ToPOD(ray.source(), precise));
+    obj->Set(String::NewSymbol("d"), Direction2::ToPOD(ray.direction(), precise));
     return scope.Close(obj);
 }
 

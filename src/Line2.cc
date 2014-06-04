@@ -79,7 +79,7 @@ bool Line2::ParseArg(Local<Value> arg, Line_2 &receiver)
 }
 
 
-Handle<Value> Line2::ToPOD(const Line_2 &line)
+Handle<Value> Line2::ToPOD(const Line_2 &line, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();

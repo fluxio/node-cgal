@@ -22,7 +22,7 @@ public:
     static bool ParseSeqArg(v8::Local<v8::Value> arg, OutputIterator iterator);
 
     template<typename ForwardIterator>
-    static v8::Handle<v8::Value> SeqToPOD(ForwardIterator first, ForwardIterator last);
+    static v8::Handle<v8::Value> SeqToPOD(ForwardIterator first, ForwardIterator last, bool precise);
 
 protected:
 

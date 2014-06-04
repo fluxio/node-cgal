@@ -3,6 +3,7 @@
 #include "cgal_types.h"
 #include "node.h"
 #include "v8.h"
+#include "AffTransformation2.h"
 #include "Point2.h"
 #include "Polygon2.h"
 #include "PolygonWithHoles2.h"
@@ -17,6 +18,7 @@ void D2::Init(v8::Handle<v8::Object> exports)
     exports->Set(String::NewSymbol("doIntersect"), FunctionTemplate::New(DoIntersect)->GetFunction());
     exports->Set(String::NewSymbol("convexPartition2"), FunctionTemplate::New(ConvexPartition2)->GetFunction());
     exports->Set(String::NewSymbol("convexHull2"), FunctionTemplate::New(ConvexHull2)->GetFunction());
+    exports->Set(String::NewSymbol("collinear"), FunctionTemplate::New(Collinear)->GetFunction());
 }
 
 Handle<Value> DoIntersect(const Arguments &args)
@@ -120,6 +122,28 @@ Handle<Value> ConvexHull2(const Arguments& args)
         }
 
         return scope.Close(array);
+    }
+
+    catch(const exception &e) {
+        return ThrowException(String::New(e.what()));
+    }
+
+}
+
+
+Handle<Value> Collinear(const Arguments &args)
+{
+    HandleScope scope;
+
+    try {
+
+        ARGS_ASSERT(args.Length() == 3);
+        ARGS_PARSE_LOCAL(Point2::ParseArg, Point_2, p0, args[0])
+        ARGS_PARSE_LOCAL(Point2::ParseArg, Point_2, p1, args[1])
+        ARGS_PARSE_LOCAL(Point2::ParseArg, Point_2, p2, args[2])
+
+        return scope.Close(Boolean::New(CGAL::collinear(p0, p1, p2)));
+
     }
 
     catch(const exception &e) {

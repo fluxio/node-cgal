@@ -11,7 +11,7 @@ describe("CGAL.Segment2", function() {
 
     it("should be renderable via toPOD", function() {
         var hl = new CGAL.Segment2({source:[0,0], target:[1,0]});
-        var pod = hl.toPOD();
+        var pod = hl.toPOD(false);
         expect(pod.source).toEqual([0,0]);
         expect(pod.target).toEqual([1,0]);
     });

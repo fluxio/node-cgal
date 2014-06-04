@@ -6,8 +6,6 @@
 #include "v8.h"
 
 
-// Wraps the CGAL::Nef_polyhedron_2 class
-
 class NefPolyhedron2 : public CGALWrapper<NefPolyhedron2, Nef_polyhedron_2>
 {
 public:
@@ -20,20 +18,19 @@ public:
     // init function.
     static void RegisterMethods();
 
-    // Attempt to parse a v8 argument into the CGAL Nef_polyhedron_2 object referred to by receiver.
-    // Accepts either a NefPolyhedron2 JS object or ...  Returns true if parse was successful,
-    // false otherwise.
+    // Attempt to parse a v8 argument into the CGAL object referred to by receiver.  Returns true
+    // if parse was successful, false otherwise.
     static bool ParseArg(v8::Local<v8::Value> arg, Nef_polyhedron_2 &receiver);
 
-    // Convert a CGAL::Nef_polyhedron_2 object to a POD v8 object of the form... This may lose
-    // precision.
-    static v8::Handle<v8::Value> ToPOD(const Nef_polyhedron_2 &nef);
+    // Convert a CGAL object of the wrapped class to a POD v8 object.  If precise is set to false,
+    // will attempt to render in terms of doubles for coordinates, and may lose precision.
+    static v8::Handle<v8::Value> ToPOD(const Nef_polyhedron_2 &nef, bool precise=false);
 
 private:
 
     //
     //----- The following methods will be callable from JS.  These will mostly match
-    //      the semantics and names of CGAL::Nef_polyhedron_2 methods.
+    //      the semantics and names of the wrapped CGAL class.
     //
 
 };

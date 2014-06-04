@@ -10,3 +10,6 @@ env:
   global:
     CGAL_GYP_LDFLAGS: -L$TRAVIS_BUILD_DIR/CGAL-4.4/lib
     CGAL_GYP_INCLUDES: $TRAVIS_BUILD_DIR/CGAL-4.4/include
+  matrix:
+    -
+    - GGAL_USE_EPECK=1

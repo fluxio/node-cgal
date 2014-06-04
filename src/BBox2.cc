@@ -20,14 +20,10 @@ bool BBox2::ParseArg(Local<Value> arg, Bbox_2 &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
 
-        // This supports e.g.: newbox = new CGAL.BBox2(oldbox);
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
 
     } else if (arg->IsObject()) {
-
-        // This supports e.g.: newbox = new CGAL.BBox2({xmin:,ymin:,xmax:,ymax:});
 
         Local<Object> bounds = Local<Object>::Cast(arg);
 
@@ -56,7 +52,7 @@ bool BBox2::ParseArg(Local<Value> arg, Bbox_2 &receiver)
 }
 
 
-Handle<Value> BBox2::ToPOD(const Bbox_2 &box)
+Handle<Value> BBox2::ToPOD(const Bbox_2 &box, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();

@@ -6,8 +6,6 @@
 #include "v8.h"
 
 
-// Wraps the CGAL::Ray_2 class
-
 class Ray2 : public CGALWrapper<Ray2, Ray_2>
 {
 public:
@@ -20,19 +18,19 @@ public:
     // init function.
     static void RegisterMethods();
 
-    // Attempt to parse a v8 object into the CGAL Ray_2 object referred to by receiver. Accepts
-    // either a Ray2 object or ... Returns true if parse was successful, false otherwise.
+    // Attempt to parse a v8 argument into the CGAL object referred to by receiver.  Returns true
+    // if parse was successful, false otherwise.
     static bool ParseArg(v8::Local<v8::Value> arg, Ray_2 &receiver);
 
-    // Convert a CGAL::Ray_2 object to a POD v8 object.  This renders a ray to an object
-    // ... and may lose precision.
-    static v8::Handle<v8::Value> ToPOD(const Ray_2 &ray);
+    // Convert a CGAL object of the wrapped class to a POD v8 object.  If precise is set to false,
+    // will attempt to render in terms of doubles for coordinates, and may lose precision.
+    static v8::Handle<v8::Value> ToPOD(const Ray_2 &ray, bool precise=true);
 
 private:
 
     //
     //----- The following methods will be callable from JS.  These will mostly match
-    //      the semantics and names of CGAL::Ray_2 methods.
+    //      the semantics and names of the wrapped CGAL class.
     //
 
     static v8::Handle<v8::Value> IsEqual(const v8::Arguments &args);
