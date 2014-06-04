@@ -77,13 +77,13 @@ bool Direction2::ParseArg(Local<Value> arg, Direction_2 &receiver)
             return true;
         }
 
-    } 
+    }
 
     return false;
 }
 
 
-Handle<Value> Direction2::ToPOD(const Direction_2 &direction)
+Handle<Value> Direction2::ToPOD(const Direction_2 &direction, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();

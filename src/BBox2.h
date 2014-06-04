@@ -6,8 +6,6 @@
 #include "v8.h"
 
 
-// Wraps the CGAL::Bbox_2 class
-
 class BBox2 : public CGALWrapper<BBox2, Bbox_2>
 {
 public:
@@ -20,26 +18,22 @@ public:
     // init function.
     static void RegisterMethods();
 
-    // Attempt to parse a v8 object into the CGAL Bbox_2 object referred to by receiver.  Accepts
-    // either a BBox2 object or a POD rep {xmin:,ymin:,xmax:,ymax:}.  Returns true if parse was
-    // successful, false otherwise.
+    // Attempt to parse a v8 argument into the CGAL object referred to by receiver.  Returns true
+    // if parse was successful, false otherwise.
     static bool ParseArg(v8::Local<v8::Value> arg, Bbox_2 &receiver);
 
-    // Convert a CGAL::BBox_2 object to a POD v8 object of the form  {xmin:,ymin:,xmax:,ymax:}.
-    // This may lose precision.
-    static v8::Handle<v8::Value> ToPOD(const Bbox_2 &box);
+    // Convert a CGAL object of the wrapped class to a POD v8 object.  If precise is set to false,
+    // will attempt to render in terms of doubles for coordinates, and may lose precision.
+    static v8::Handle<v8::Value> ToPOD(const Bbox_2 &box, bool precise=true);
 
 private:
 
     //
     //----- The following methods will be callable from JS.  These will mostly match
-    //      the semantics and names of CGAL::BBox_2 methods.
+    //      the semantics and names of the wrapped CGAL class.
     //
 
-    // Returns true if this bbox overlaps with the bbox argument.
     static v8::Handle<v8::Value> Overlaps(const v8::Arguments &args);
-
-    // Returns the smallest bbox that contains both this bbox and the bbox arguemnt.
     static v8::Handle<v8::Value> Add(const v8::Arguments &args);
 
 };

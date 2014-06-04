@@ -5,13 +5,13 @@ describe("CGAL.convexPartition2", function() {
 
     it("should convexify a concave poly", function() {
         var result = CGAL.convexPartition2([[0,0],[5,5],[10,0],[10,10],[0,10]]);
-        result = result.map(function(subresult) { return subresult.toPOD(); });
+        result = result.map(function(subresult) { return subresult.toPOD(false); });
         expect(result).toEqual([[[5,5],[10,0],[10,10],[0,10]],[[0,0],[5,5],[0,10]]]);
     });
 
     it("should pass convex poly unchanged", function() {
         var result = CGAL.convexPartition2([[0,0],[10,0],[0,10]]);
-        result = result.map(function(subresult) { return subresult.toPOD(); });
+        result = result.map(function(subresult) { return subresult.toPOD(false); });
         expect(result).toEqual([[[0,0],[10,0],[0,10]]]);
     });
 
@@ -39,13 +39,13 @@ describe("CGAL.convexHull2", function() {
 
     it("should convexify a set of points", function() {
         var result = CGAL.convexHull2([[0,0],[5,5],[10,0],[10,10],[0,10]]);
-        result = result.map(function(subresult) { return subresult.toPOD(); });
+        result = result.map(function(subresult) { return subresult.toPOD(false); });
         expect(result).toEqual([[0,0],[10,0],[10,10],[0,10]]);
     });
 
     it("should pass a convex set of points unchanged", function() {
         var result = CGAL.convexHull2([[0,0],[10,0],[10,10],[0,10]]);
-        result = result.map(function(subresult) { return subresult.toPOD(); });
+        result = result.map(function(subresult) { return subresult.toPOD(false); });
         expect(result).toEqual([[0,0],[10,0],[10,10],[0,10]]);
     });
 
