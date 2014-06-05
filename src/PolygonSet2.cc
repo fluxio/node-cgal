@@ -61,12 +61,12 @@ bool PolygonSet2::ParseArg(Local<Value> arg, Polygon_set_2 &receiver)
 }
 
 
-Handle<Value> PolygonSet2::ToPOD(const Polygon_set_2 &polySet)
+Handle<Value> PolygonSet2::ToPOD(const Polygon_set_2 &polySet, bool precise)
 {
     HandleScope scope;
     vector<Polygon_with_holes_2> pwhs;
     polySet.polygons_with_holes(back_inserter(pwhs));
-    return scope.Close(PolygonWithHoles2::SeqToPOD(pwhs.begin(), pwhs.end()));
+    return scope.Close(PolygonWithHoles2::SeqToPOD(pwhs.begin(), pwhs.end(), precise));
 }
 
 

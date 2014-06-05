@@ -44,7 +44,7 @@ bool Arrangement2Vertex::ParseArg(Local<Value> arg, Arrangement_2::Vertex_handle
 }
 
 
-Handle<Value> Arrangement2Vertex::ToPOD(const Arrangement_2::Vertex_handle &vertex)
+Handle<Value> Arrangement2Vertex::ToPOD(const Arrangement_2::Vertex_handle &vertex, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();
@@ -83,7 +83,7 @@ Handle<Value> Arrangement2Vertex::ToString(const v8::Arguments &args)
             break;
         }
     } else {
-        str << vertex->point(); 
+        str << vertex->point();
     }
     str << "]";
     return scope.Close(String::New(str.str().c_str()));
@@ -139,7 +139,7 @@ Handle<Value> Arrangement2Vertex::IncidentHalfedges(const v8::Arguments &args)
         first = curr = vertex->incident_halfedges();
         uint32_t i = 0;
         do {
-            array->Set(i, Arrangement2Halfedge::New(curr));                
+            array->Set(i, Arrangement2Halfedge::New(curr));
         } while(++i,++curr != first);
         return scope.Close(array);
     }

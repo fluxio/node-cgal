@@ -26,7 +26,7 @@ describe("CGAL.Arrangement2", function() {
 
     it("should report the number of face, bounded faces, unbounded faces, and vertices in the arrangement", function(){
         arr.insertLines([l1,l2,l3]);
-        var arrPOD = arr.toPOD();
+        var arrPOD = arr.toPOD(false);
         expect(arrPOD.numFaces).toEqual(7);
         expect(arrPOD.numUnboundedFaces).toEqual(6);
         expect(arrPOD.numBoundedFaces).toEqual(1);
@@ -35,13 +35,13 @@ describe("CGAL.Arrangement2", function() {
 
     it("should report the bounded faces within the arrangement", function(){
         arr.insertLines([l1,l2,l3]);
-        var faces = arr.toPOD().boundedFaces;
+        var faces = arr.toPOD(false).boundedFaces;
         expect(faces.length).toEqual(1);
         expect(faces[0]).toEqual([[1,1], [9,1], [5,5]]);
 
         var l4 = new CGAL.Line2({p: [-1,9], q:[11,9]});
         arr.insertLines([l4]);
-        faces = arr.toPOD().boundedFaces;
+        faces = arr.toPOD(false).boundedFaces;
         expect(faces.length).toEqual(2);
         expect(faces[0]).toEqual([[9,9], [1,9], [5,5]]);
     });

@@ -23,16 +23,12 @@ bool PolygonWithHoles2::ParseArg(Local<Value> arg, Polygon_with_holes_2 &receive
 {
     if (sConstructorTemplate->HasInstance(arg)) {
 
-        // This supports e.g.: newpwh = new CGAL.PolygonWithHoles2(oldpwh);
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
 
     } else if (arg->IsObject()) {
 
         Local<Object> inits = Local<Object>::Cast(arg);
-
-        // This supports e.g.: pwh = new CGAL.PolygonWithHoles2({outer:,holes:})
 
         if (inits->Has(String::NewSymbol("outer")) &&
             inits->Has(String::NewSymbol("holes")) )
@@ -52,8 +48,6 @@ bool PolygonWithHoles2::ParseArg(Local<Value> arg, Polygon_with_holes_2 &receive
             receiver = Polygon_with_holes_2(outer, holes.begin(), holes.end());
             return true;
         }
-
-        // This supports e.g. pwh = new CGAL.PolygonWithHoles2(aPolygon2)
 
         else {
 
@@ -75,12 +69,12 @@ bool PolygonWithHoles2::ParseArg(Local<Value> arg, Polygon_with_holes_2 &receive
 }
 
 
-Handle<Value> PolygonWithHoles2::ToPOD(const Polygon_with_holes_2 &poly)
+Handle<Value> PolygonWithHoles2::ToPOD(const Polygon_with_holes_2 &poly, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("outer"), Polygon2::ToPOD(poly.outer_boundary()));
-    obj->Set(String::NewSymbol("holes"), Polygon2::SeqToPOD(poly.holes_begin(), poly.holes_end()));
+    obj->Set(String::NewSymbol("outer"), Polygon2::ToPOD(poly.outer_boundary(), precise));
+    obj->Set(String::NewSymbol("holes"), Polygon2::SeqToPOD(poly.holes_begin(), poly.holes_end(), precise));
     return scope.Close(obj);
 }
 

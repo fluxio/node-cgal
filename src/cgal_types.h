@@ -3,12 +3,12 @@
 
 //
 // If CGAL_USE_APPROX is defined, we parameterize the kernel stack in the wrappers to be based
-// on the Vannevar approximate interval number type; otherwise we configure with the stock GCAL 
+// on the Vannevar approximate interval number type; otherwise we configure with the stock GCAL
 // epick (exact predicates, inexact constructions) kernel.
-// 
+//
 // The Vannevar approximate interval stack is still early in development and not included in this
 // release, but we hope to include it soon in an updated release.
-// 
+//
 
 #if defined(CGAL_USE_APPROX)
 #include "CGAL/Interval_nt_approx.h"
@@ -54,6 +54,8 @@ typedef CGAL::Segment_2<K> Segment_2;
 typedef CGAL::Line_2<K> Line_2;
 typedef CGAL::Ray_2<K> Ray_2;
 typedef CGAL::Vector_2<K> Vector_2;
+typedef CGAL::Aff_transformation_2<K> Aff_transformation_2;
+typedef CGAL::Rotation Rotation;
 typedef K::Point_2 Point_2;
 typedef Polygon_2::Vertex_iterator Vertex_iterator;
 typedef CGAL::Extended_cartesian<K::FT> EK;

@@ -6,8 +6,10 @@ describe("CGAL.Polygon2", function() {
     it("should be constructable from an array of points", function() {
         expect(function() { return new CGAL.Polygon2([[0,0], [1,1], [0,2]]); }).not.toThrow();
         expect(function() { return new CGAL.Polygon2(); }).not.toThrow();
-        expect(function() { return new CGAL.Polygon2([]); }).toThrow();
+        expect(function() { return new CGAL.Polygon2([]); }).not.toThrow();
         expect(function() { return new CGAL.Polygon2([[0,0]]); }).not.toThrow();
+        expect(function() { return new CGAL.Polygon2([["1", "4"], ["3/1", "0.0"], ["343/1234", "0"]]); }).not.toThrow();
+        expect(function() { return new CGAL.Polygon2([["1", "4"], ["3/1", "0.0"], [0, 2]]); }).not.toThrow();
     });
 
     it("should be constructable from another instance", function() {
@@ -18,7 +20,7 @@ describe("CGAL.Polygon2", function() {
     it("should be renderable via toPOD", function() {
         var points = [[0,0], [1,1], [0,2]];
         var p = new CGAL.Polygon2(points);
-        var poly = p.toPOD();
+        var poly = p.toPOD(false);
         expect(poly.length).toBe(3);
         expect(poly).toEqual(points);
     });
@@ -29,6 +31,13 @@ describe("CGAL.Polygon2", function() {
         var p3 = new CGAL.Polygon2([[0,0],[0,1],[1,1],[1,0]]);
         expect(p1.isEqual(p2)).toBeTruthy();
         expect(p1.isEqual(p3)).toBeFalsy();
+    });
+
+    it("should be serializable and revivable from serialized form", function() {
+        var p1 = new CGAL.Polygon2([[0,0],[0.2+0.1,0],[1,1],[0,1]]);
+        var p2 = new CGAL.Polygon2(p1.toPOD());
+        expect(p1.toPOD()).toEqual(p2.toPOD());
+        expect(p1.isEqual(p2)).toBeTruthy();
     });
 
     it("isSimple predicate should function as expected", function() {
@@ -85,4 +94,10 @@ describe("CGAL.Polygon2", function() {
         expect(p3.area()).toBeCloseTo(-1.0, 4);
     });
 
+    it ("should support transformation", function() {
+        var p1 = new CGAL.Polygon2([[0, 0], [1, 0], [1, 1], [0, 1]]);
+        var p2;
+        expect(function() {p2 = CGAL.Polygon2.transform([1, 0, 3, 0, 1, 3], p1);}).not.toThrow();
+        expect(p2.toPOD(false)[0]).toEqual([3,3]);
+    });
 });

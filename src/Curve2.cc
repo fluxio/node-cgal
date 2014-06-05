@@ -61,7 +61,7 @@ bool Curve2::ParseArg(Local<Value> arg, Curve_2 &receiver)
 }
 
 
-Handle<Value> Curve2::ToPOD(const Curve_2 &curve)
+Handle<Value> Curve2::ToPOD(const Curve_2 &curve, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();

@@ -63,14 +63,16 @@ v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::New(const CGALClass 
 
 template<typename WrapperClass, typename CGALClass>
 template<typename ForwardIterator>
-v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::SeqToPOD(ForwardIterator first, ForwardIterator last)
+v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::SeqToPOD(
+    ForwardIterator first, ForwardIterator last,
+    bool precise)
 {
     v8::HandleScope scope;
     v8::Local<v8::Array> array = v8::Array::New();
     ForwardIterator it;
     uint32_t i;
     for(it=first,i=0; it!=last; ++it,++i) {
-        array->Set(i, WrapperClass::ToPOD(*it));
+        array->Set(i, WrapperClass::ToPOD(*it, precise));
     }
     return scope.Close(array);
 }
@@ -126,7 +128,15 @@ v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::ToPOD(const v8::Argu
 {
     v8::HandleScope scope;
     WrapperClass *wrapper = ObjectWrap::Unwrap<WrapperClass>(args.This());
-    return scope.Close(WrapperClass::ToPOD(wrapper->mWrapped));
+    ARGS_ASSERT(args.Length() <= 1)
+
+    bool precise = true;
+    if (args.Length() == 1) {
+        ARGS_ASSERT(args[0]->IsBoolean())
+        precise = args[0]->BooleanValue();
+    }
+
+    return scope.Close(WrapperClass::ToPOD(wrapper->mWrapped, precise));
 }
 
 

@@ -5,6 +5,7 @@
 
         'sources': [
             'src/cgal.cc',
+            'src/AffTransformation2.cc',
             'src/Arrangement2.cc',
             'src/Arrangement2Face.cc',
             'src/Arrangement2Halfedge.cc',
@@ -35,6 +36,8 @@
                     'GCC_ENABLE_CPP_RTTI': 'YES',
                     'OTHER_CPLUSPLUSFLAGS': [
                         '-Wno-unneeded-internal-declaration',
+                        '-mmacosx-version-min=10.7',
+                        '-stdlib=libc++',
                         '<!@(echo $CGAL_GYP_CXXFLAGS)'
                      ],
                     'OTHER_LDFLAGS': [ '<!@(echo $CGAL_GYP_LDFLAGS)' ]

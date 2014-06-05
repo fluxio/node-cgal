@@ -57,12 +57,12 @@ bool Segment2::ParseArg(Local<Value> arg, Segment_2 &receiver)
 }
 
 
-Handle<Value> Segment2::ToPOD(const Segment_2 &segment)
+Handle<Value> Segment2::ToPOD(const Segment_2 &segment, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("source"), Point2::ToPOD(segment.source()));
-    obj->Set(String::NewSymbol("target"), Point2::ToPOD(segment.target()));
+    obj->Set(String::NewSymbol("source"), Point2::ToPOD(segment.source(), precise));
+    obj->Set(String::NewSymbol("target"), Point2::ToPOD(segment.target(), precise));
     return scope.Close(obj);
 }
 

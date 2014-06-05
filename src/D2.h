@@ -25,4 +25,6 @@ v8::Handle<v8::Value> ConvexHull2(const v8::Arguments &args);
 // intersect.
 v8::Handle<v8::Value> DoIntersect(const v8::Arguments &args);
 
+v8::Handle<v8::Value> Collinear(const v8::Arguments &args);
+
 #endif // !defined(D2_H)
