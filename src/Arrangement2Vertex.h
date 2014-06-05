@@ -45,4 +45,12 @@ private:
 
 };
 
+// Declare missing output stream operator so compiler can expand default ToString template method.
+// We won't actually link against this since the method is shadowed above, but it needs to be
+// declared to satisfy the compiler.
+
+namespace std {
+    ostream &operator<<(ostream &str, const Arrangement_2::Vertex_handle &vertex);
+}
+
 #endif // !defined(ARRANGEMENT2VERTEX_H)

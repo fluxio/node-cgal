@@ -13,7 +13,6 @@ const char *Polygon2::Name = "Polygon2";
 
 void Polygon2::RegisterMethods()
 {
-    SetPrototypeMethod(sConstructorTemplate, "toString", ToString);
     SetPrototypeMethod(sConstructorTemplate, "isEqual", IsEqual);
     SetPrototypeMethod(sConstructorTemplate, "isSimple", IsSimple);
     SetPrototypeMethod(sConstructorTemplate, "isConvex", IsConvex);
@@ -50,16 +49,6 @@ Handle<Value> Polygon2::ToPOD(const Polygon_2 &poly, bool precise)
 {
     HandleScope scope;
     return scope.Close(Point2::SeqToPOD(poly.vertices_begin(), poly.vertices_end(), precise));
-}
-
-
-Handle<Value> Polygon2::ToString(const v8::Arguments &args)
-{
-    HandleScope scope;
-    Polygon_2 &poly = ExtractWrapped(args.This());
-    ostringstream str;
-    str << "[object "  << Name << " " << poly << "]";
-    return scope.Close(String::New(str.str().c_str()));
 }
 
 

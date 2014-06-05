@@ -60,7 +60,6 @@ bool Arrangement2::ParseArg(Local<Value> arg, Arrangement_2 &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
 
-        // This supports e.g.: newArrangement = new CGAL.Arrangement2(oldArrangement);
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
 

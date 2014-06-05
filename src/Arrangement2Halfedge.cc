@@ -31,8 +31,6 @@ bool Arrangement2Halfedge::ParseArg(Local<Value> arg, Arrangement_2::Halfedge_ha
 {
     if (sConstructorTemplate->HasInstance(arg)) {
 
-        // This supports e.g.: newhalfedge = new CGAL.Arrangement2.Halfedge(oldhalfedge);
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
 

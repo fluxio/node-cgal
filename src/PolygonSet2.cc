@@ -12,6 +12,11 @@ using namespace std;
 
 const char *PolygonSet2::Name = "PolygonSet2";
 
+ostream &operator<<(ostream &str, const Polygon_set_2 &polySet)
+{
+    return str;
+}
+
 
 void PolygonSet2::RegisterMethods()
 {

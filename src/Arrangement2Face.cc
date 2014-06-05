@@ -26,8 +26,6 @@ bool Arrangement2Face::ParseArg(Local<Value> arg, Arrangement_2::Face_handle &re
 {
     if (sConstructorTemplate->HasInstance(arg)) {
 
-        // This supports e.g.: newface = new CGAL.Arrangment2.Face(oldface);
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
 

@@ -3,6 +3,7 @@
 
 #include "CGAL/Object.h"
 #include "cgal_args.h"
+#include <sstream>
 
 
 template<typename WrapperClass, typename CGALClass>
@@ -38,6 +39,7 @@ void CGALWrapper<WrapperClass, CGALClass>::Init(v8::Handle<ParentScope> exports)
 
         node::SetPrototypeMethod(sConstructorTemplate, "toPOD", CGALWrapper<WrapperClass, CGALClass>::ToPOD);
         node::SetPrototypeMethod(sConstructorTemplate, "inspect", CGALWrapper<WrapperClass, CGALClass>::Inspect);
+        node::SetPrototypeMethod(sConstructorTemplate, "toString", CGALWrapper<WrapperClass, CGALClass>::ToString);
 
         WrapperClass::RegisterMethods();
 
@@ -145,6 +147,17 @@ v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::Inspect(const v8::Ar
 {
     v8::HandleScope scope;
     return scope.Close(args.This()->ToString());
+}
+
+
+template<typename WrapperClass, typename CGALClass>
+v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::ToString(const v8::Arguments &args)
+{
+    v8::HandleScope scope;
+    CGALClass &wrapped = ExtractWrapped(args.This());
+    std::ostringstream str;
+    str << "[object "  << WrapperClass::Name << " " << wrapped << "]";
+    return scope.Close(v8::String::New(str.str().c_str()));
 }
 
 

@@ -35,6 +35,7 @@ protected:
     static v8::Handle<v8::Value> New(const v8::Arguments &args);
     static v8::Handle<v8::Value> ToPOD(const v8::Arguments &args);
     static v8::Handle<v8::Value> Inspect(const v8::Arguments &args);
+    static v8::Handle<v8::Value> ToString(const v8::Arguments &args);
 
 };
 

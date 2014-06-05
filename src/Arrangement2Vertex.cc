@@ -31,8 +31,6 @@ bool Arrangement2Vertex::ParseArg(Local<Value> arg, Arrangement_2::Vertex_handle
 {
     if (sConstructorTemplate->HasInstance(arg)) {
 
-        // This supports e.g.: newvertex = new CGAL.Arrangement2.Vertex(oldvertex);
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
 

@@ -33,7 +33,6 @@ private:
     //      the semantics and names of CGAL::Point_2 methods.
     //
 
-    static v8::Handle<v8::Value> ToString(const v8::Arguments &args);
     static v8::Handle<v8::Value> IsEqual(const v8::Arguments &args);
     static v8::Handle<v8::Value> IsSimple(const v8::Arguments &args);
     static v8::Handle<v8::Value> IsConvex(const v8::Arguments &args);

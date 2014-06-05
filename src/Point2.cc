@@ -13,7 +13,6 @@ const char *Point2::Name = "Point2";
 
 void Point2::RegisterMethods()
 {
-    SetPrototypeMethod(sConstructorTemplate, "toString", ToString);
     SetPrototypeMethod(sConstructorTemplate, "isEqual", IsEqual);
     SetPrototypeMethod(sConstructorTemplate, "x", X);
     SetPrototypeMethod(sConstructorTemplate, "y", Y);
@@ -104,16 +103,6 @@ Handle<Value> Point2::ToPOD(const Point_2 &point, bool precise)
     }
 
     return scope.Close(array);
-}
-
-
-Handle<Value> Point2::ToString(const v8::Arguments &args)
-{
-    HandleScope scope;
-    Point_2 &point = ExtractWrapped(args.This());
-    ostringstream str;
-    str << "[object "  << Name << " " << point << "]";
-    return scope.Close(String::New(str.str().c_str()));
 }
 
 

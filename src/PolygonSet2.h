@@ -52,4 +52,8 @@ private:
 
 };
 
+namespace std {
+    ostream &operator<<(ostream &str, const Polygon_set_2 &pset);
+}
+
 #endif // !defined(POLYGONSET2_H)
