@@ -20,40 +20,25 @@ void Segment2::RegisterMethods()
 bool Segment2::ParseArg(Local<Value> arg, Segment_2 &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
-        // This supports e.g.: newseg = new CGAL.Segment2(oldseg);
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
+    }
 
-    } else if (arg->IsObject()) {
-
-        // This supports e.g.: newseg = new CGAL.Segment2({source:,target:});
-
+    if (arg->IsObject()) {
         Local<Object> ends = Local<Object>::Cast(arg);
 
-        if (!ends->Has(String::NewSymbol("source"))
-            || !ends->Has(String::NewSymbol("target")))
+        Point_2 source, target;
+
+        if (Point2::ParseArg(ends->Get(String::NewSymbol("source")), source) &&
+            Point2::ParseArg(ends->Get(String::NewSymbol("target")), target))
         {
-            return false;
+            receiver = Segment_2(source, target);
+            return true;
         }
 
-        Point_2 source;
-        if (!Point2::ParseArg(ends->Get(String::NewSymbol("source")), source))
-            return false;
-
-        Point_2 target;
-        if (!Point2::ParseArg(ends->Get(String::NewSymbol("target")), target))
-            return false;
-
-        receiver = Segment_2(source, target);
-        return true;
-
-    } else {
-
-        return false;
-
     }
+
+    return false;
 }
 
 

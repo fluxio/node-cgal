@@ -29,34 +29,29 @@ void Curve2::RegisterMethods()
 
 bool Curve2::ParseArg(Local<Value> arg, Curve_2 &receiver)
 {
-    // This supports e.g.: newcurve = new CGAL.Curve2(oldcurve);
     if (sConstructorTemplate->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
 
-    // This supports e.g.: newcurve = new CGAL.Curve2(aSegment2);
     Segment_2 segment;
     if (Segment2::ParseArg(arg, segment)) {
         receiver = Curve_2(segment);
         return true;
     }
 
-    // This supports e.g.: newcurve = new CGAL.Curve2(aLine2);
     Line_2 line;
     if (Line2::ParseArg(arg, line)) {
         receiver = Curve_2(line);
         return true;
     }
 
-    // This supports e.g.: newcurve = new CGAL.Curve2(aLine2);
     Ray_2 ray;
     if (Ray2::ParseArg(arg, ray)) {
         receiver = Curve_2(ray);
         return true;
     }
 
-    // no good...
     return false;
 }
 

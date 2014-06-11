@@ -23,54 +23,24 @@ void Point2::RegisterMethods()
 bool Point2::ParseArg(Local<Value> arg, Point_2 &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
-        // This supports e.g.: newPoint = new CGAL.Point2(oldPoint);
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
-
-    } else if (arg->IsArray()) {
-
-        Local<Array> coords = Local<Array>::Cast(arg);
-
-        if (coords->Length() < 2)
-            return false;
-
-        if (coords->Get(0)->IsNumber() && coords->Get(1)->IsNumber()) {
-
-            receiver = Point_2(coords->Get(0)->NumberValue(), coords->Get(1)->NumberValue());
-            return true;
-
-        } else if (coords->Get(0)->IsString() && coords->Get(1)->IsString()) {
-
-#ifdef CGAL_USE_EPECK
-
-            K::FT x(CGAL::Epeck_ft(*String::AsciiValue(coords->Get(0))));
-            K::FT y(CGAL::Epeck_ft(*String::AsciiValue(coords->Get(1))));
-
-#else // !defined(CGAL_USE_EPECK)
-
-            istringstream xstr(*String::AsciiValue(coords->Get(0)));
-            K::FT x;
-            xstr >> x;
-
-            istringstream ystr(*String::AsciiValue(coords->Get(1)));
-            K::FT y;
-            ystr >> y;
-
-#endif // !defined(CGAL_USE_EPECK)
-
-            receiver = Point_2(x, y);
-            return true;
-
-        } else {
-            return false;
-        }
-
-    } else {
-        return false;
     }
 
+    if (arg->IsArray()) {
+        Local<Array> coords = Local<Array>::Cast(arg);
+
+        K::FT x, y;
+        if (::ParseArg(coords->Get(0), x) &&
+            ::ParseArg(coords->Get(1), y))
+        {
+            receiver = Point_2(x, y);
+            return true;
+        }
+
+    }
+
+    return false;
 }
 
 

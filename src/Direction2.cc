@@ -29,34 +29,29 @@ void Direction2::RegisterMethods()
 
 bool Direction2::ParseArg(Local<Value> arg, Direction_2 &receiver)
 {
-    // This supports e.g.: newdir = new CGAL.Direction2(olddir);
     if (sConstructorTemplate->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
 
-    // This supports e.g.: newdir = new CGAL.Direction2(aVector);
     Vector_2 vector;
     if (Vector2::ParseArg(arg, vector)) {
         receiver = Direction_2(vector);
         return true;
     }
 
-    // This supports e.g.: newdir = new CGAL.Direction2(aLine);
     Line_2 line;
     if (Line2::ParseArg(arg, line)) {
         receiver = Direction_2(line);
         return true;
     }
 
-    // This supports e.g.: newdir = new CGAL.Direction2(aRay);
     Ray_2 ray;
     if (Ray2::ParseArg(arg, ray)) {
         receiver = Direction_2(ray);
         return true;
     }
 
-    // This supports e.g.: newdir = new CGAL.Direction2(aSegment);
     Segment_2 segment;
     if (Segment2::ParseArg(arg, segment)) {
         receiver = Direction_2(segment);
@@ -64,15 +59,12 @@ bool Direction2::ParseArg(Local<Value> arg, Direction_2 &receiver)
     }
 
     if (arg->IsObject()) {
-
         Local<Object> inits = Local<Object>::Cast(arg);
 
-        // This supports e.g.: newdir = new CGAL.Direction2({dx:,dy:});
-        if (inits->Has(String::NewSymbol("dx")) &&
-            inits->Has(String::NewSymbol("dy")))
+        K::FT dx, dy;
+        if (::ParseArg(inits->Get(String::NewSymbol("dx")), dx) &&
+            ::ParseArg(inits->Get(String::NewSymbol("dy")), dy))
         {
-            double dx = inits->Get(String::NewSymbol("dx"))->NumberValue();
-            double dy = inits->Get(String::NewSymbol("dy"))->NumberValue();
             receiver = Direction_2(dx, dy);
             return true;
         }
@@ -87,8 +79,30 @@ Handle<Value> Direction2::ToPOD(const Direction_2 &direction, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("dx"), Number::New(CGAL::to_double(direction.dx())));
-    obj->Set(String::NewSymbol("dy"), Number::New(CGAL::to_double(direction.dy())));
+
+    if (precise) {
+
+        ostringstream dxstr;
+#if CGAL_USE_EPECK
+        dxstr << direction.dx().exact();
+#else
+        dxstr << setprecision(20) << direction.dx();
+#endif
+        obj->Set(String::NewSymbol("dx"), String::New(dxstr.str().c_str()));
+
+        ostringstream dystr;
+#if CGAL_USE_EPECK
+        dystr << direction.dy().exact();
+#else
+        dystr << setprecision(20) << direction.dy();
+#endif
+        obj->Set(String::NewSymbol("dy"), String::New(dystr.str().c_str()));
+
+    } else {
+        obj->Set(String::NewSymbol("dx"), Number::New(CGAL::to_double(direction.dx())));
+        obj->Set(String::NewSymbol("dy"), Number::New(CGAL::to_double(direction.dy())));
+    }
+
     return scope.Close(obj);
 }
 

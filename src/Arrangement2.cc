@@ -59,15 +59,11 @@ void Arrangement2::RegisterMethods()
 bool Arrangement2::ParseArg(Local<Value> arg, Arrangement_2 &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
-
-    } else {
-
-        return false;
-
     }
+
+    return false;
 }
 
 

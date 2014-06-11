@@ -63,6 +63,22 @@ v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::New(const CGALClass 
 }
 
 
+template<typename NumberPrimitive>
+bool ParseArg(v8::Local<v8::Value> obj, NumberPrimitive &parsed)
+{
+    if (obj->IsNumber()) {
+        parsed = obj->NumberValue();
+        return true;
+    } else if (obj->IsString()) {
+        std::istringstream str(*v8::String::AsciiValue(obj));
+        str >> parsed;
+        return !str.fail();
+    } else {
+        return false;
+    }
+}
+
+
 template<typename WrapperClass, typename CGALClass>
 template<typename ForwardIterator>
 v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::SeqToPOD(

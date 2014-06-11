@@ -41,27 +41,23 @@ void PolygonSet2::RegisterMethods()
 
 bool PolygonSet2::ParseArg(Local<Value> arg, Polygon_set_2 &receiver)
 {
-    // This supports e.g.: newset = new CGAL.PolygonSet2(oldset);
     if (sConstructorTemplate->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
 
-    // This supports e.g.: newset = new CGAL.PolygonSet2(aPolygon2);
     Polygon_2 poly;
     if (Polygon2::ParseArg(arg, poly)) {
         receiver = Polygon_set_2(poly);
         return true;
     }
 
-    // This supports e.g.: newset = new CGAL.PolygonSet2(aPolygonWithHoles2);
     Polygon_with_holes_2 pwh;
     if (PolygonWithHoles2::ParseArg(arg, pwh)) {
         receiver = Polygon_set_2(pwh);
         return true;
     }
 
-    // no good...
     return false;
 }
 

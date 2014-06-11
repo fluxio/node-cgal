@@ -25,15 +25,11 @@ void Arrangement2Face::RegisterMethods()
 bool Arrangement2Face::ParseArg(Local<Value> arg, Arrangement_2::Face_handle &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
-
-    } else {
-
-        return false;
-
     }
+
+    return false;
 }
 
 

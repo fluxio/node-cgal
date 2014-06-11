@@ -29,19 +29,15 @@ void Polygon2::RegisterMethods()
 bool Polygon2::ParseArg(v8::Local<v8::Value> arg, Polygon_2 &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
-
-    } else if (arg->IsArray()) {
-
-        return Point2::ParseSeqArg(arg, back_inserter(receiver));
-
-    } else {
-
-        return false;
-
     }
+
+    if (arg->IsArray()) {
+        return Point2::ParseSeqArg(arg, back_inserter(receiver));
+    }
+
+    return false;
 }
 
 

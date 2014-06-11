@@ -30,15 +30,11 @@ void Arrangement2Halfedge::RegisterMethods()
 bool Arrangement2Halfedge::ParseArg(Local<Value> arg, Arrangement_2::Halfedge_handle &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
-
-    } else {
-
-        return false;
-
     }
+
+    return false;
 }
 
 

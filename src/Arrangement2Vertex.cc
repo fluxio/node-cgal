@@ -30,15 +30,11 @@ void Arrangement2Vertex::RegisterMethods()
 bool Arrangement2Vertex::ParseArg(Local<Value> arg, Arrangement_2::Vertex_handle &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
-
-    } else {
-
-        return false;
-
     }
+
+    return false;
 }
 
 

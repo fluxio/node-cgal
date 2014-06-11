@@ -23,59 +23,33 @@ void Line2::RegisterMethods()
 bool Line2::ParseArg(Local<Value> arg, Line_2 &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
-        // This supports e.g.: newline = new CGAL.Line2(oldline);
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
+    }
 
-    } else if (arg->IsObject()) {
-
+    if (arg->IsObject()) {
         Local<Object> inits = Local<Object>::Cast(arg);
 
-        // This supports e.g.: newline = new CGAL.Line2({a:,b:,c:});
-        if (inits->Get(String::NewSymbol("a"))->IsNumber() &&
-            inits->Get(String::NewSymbol("b"))->IsNumber() &&
-            inits->Get(String::NewSymbol("c"))->IsNumber())
+        K::FT a, b, c;
+        if (::ParseArg(inits->Get(String::NewSymbol("a")), a) &&
+            ::ParseArg(inits->Get(String::NewSymbol("b")), b) &&
+            ::ParseArg(inits->Get(String::NewSymbol("c")), c))
         {
-            receiver = Line_2(
-                inits->Get(String::NewSymbol("a"))->NumberValue(),
-                inits->Get(String::NewSymbol("b"))->NumberValue(),
-                inits->Get(String::NewSymbol("c"))->NumberValue()
-            );
+            receiver = Line_2(a, b, c);
             return true;
         }
 
-        // This supports e.g.: newline = new CGAL.Line2({p:,q:});
-        else if (inits->Has(String::NewSymbol("p")) &&
-            inits->Has(String::NewSymbol("q")) )
+        Point_2 p, q;
+        if (Point2::ParseArg(inits->Get(String::NewSymbol("p")), p) &&
+            Point2::ParseArg(inits->Get(String::NewSymbol("q")), q))
         {
-            Point_2 p;
-            if (!Point2::ParseArg(inits->Get(String::NewSymbol("p")), p))
-            {
-                return false;
-            }
-
-            Point_2 q;
-            if (!Point2::ParseArg(inits->Get(String::NewSymbol("q")), q))
-            {
-                return false;
-            }
-
             receiver = Line_2(p, q);
             return true;
-
         }
-
-        else {
-            return false;
-        }
-
-    } else {
-
-        return false;
 
     }
+
+    return false;
 }
 
 
@@ -83,9 +57,39 @@ Handle<Value> Line2::ToPOD(const Line_2 &line, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("a"), Number::New(CGAL::to_double(line.a())));
-    obj->Set(String::NewSymbol("b"), Number::New(CGAL::to_double(line.b())));
-    obj->Set(String::NewSymbol("c"), Number::New(CGAL::to_double(line.c())));
+
+    if (precise) {
+
+        ostringstream astr;
+#if CGAL_USE_EPECK
+        astr << line.a().exact();
+#else
+        astr << setprecision(20) << line.a();
+#endif
+        obj->Set(String::NewSymbol("a"), String::New(astr.str().c_str()));
+
+        ostringstream bstr;
+#if CGAL_USE_EPECK
+        bstr << line.b().exact();
+#else
+        bstr << setprecision(20) << line.b();
+#endif
+        obj->Set(String::NewSymbol("b"), String::New(bstr.str().c_str()));
+
+        ostringstream cstr;
+#if CGAL_USE_EPECK
+        cstr << line.c().exact();
+#else
+        cstr << setprecision(20) << line.c();
+#endif
+        obj->Set(String::NewSymbol("c"), String::New(cstr.str().c_str()));
+
+    } else {
+        obj->Set(String::NewSymbol("a"), Number::New(CGAL::to_double(line.a())));
+        obj->Set(String::NewSymbol("b"), Number::New(CGAL::to_double(line.b())));
+        obj->Set(String::NewSymbol("c"), Number::New(CGAL::to_double(line.c())));
+    }
+
     return scope.Close(obj);
 }
 
