@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 if [[ !(-e build/Makefile) || (binding.gyp -nt build/Makefile) ]]; then
     node-gyp configure
 fi
