@@ -10,11 +10,11 @@
   "private": true,
   "repository": {},
   "devDependencies": {
-    "jasmine-node": "1.14.3"
+    "jasmine-node": "1.14.5"
   },
   "scripts": {
     "test": "scripts/test",
-    "preinstall": "node-gyp configure && node-gyp build -j 4",
+    "preinstall": "scripts/preinstall",
     "clean": "node-gyp clean && rm -rf build"
   },
   "engines": {
