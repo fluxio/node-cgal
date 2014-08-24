@@ -25,21 +25,15 @@ void Arrangement2Face::RegisterMethods()
 bool Arrangement2Face::ParseArg(Local<Value> arg, Arrangement_2::Face_handle &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
-        // This supports e.g.: newface = new CGAL.Arrangment2.Face(oldface);
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
-
-    } else {
-
-        return false;
-
     }
+
+    return false;
 }
 
 
-Handle<Value> Arrangement2Face::ToPOD(const Arrangement_2::Face_handle &face)
+Handle<Value> Arrangement2Face::ToPOD(const Arrangement_2::Face_handle &face, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();
@@ -53,7 +47,7 @@ Handle<Value> Arrangement2Face::ToString(const v8::Arguments &args)
     Arrangement_2::Face_handle &face = ExtractWrapped(args.This());
     ostringstream str;
     str << "[object "  << Name << " " << face.ptr() << " ";
-    if (face->is_fictitious()) { 
+    if (face->is_fictitious()) {
         str << "FIC ";
     } else if (face->is_unbounded()) {
         str << "UNB ";
@@ -114,7 +108,7 @@ Handle<Value> Arrangement2Face::OuterCCB(const v8::Arguments &args)
             first = curr = face->outer_ccb();
             uint32_t i = 0;
             do {
-                array->Set(i, Arrangement2Halfedge::New(curr));                
+                array->Set(i, Arrangement2Halfedge::New(curr));
             } while(++i,++curr != first);
         }
         return scope.Close(array);
@@ -140,7 +134,7 @@ Handle<Value> Arrangement2Face::Holes(const v8::Arguments &args)
             first = curr = *it;
             uint32_t j = 0;
             do {
-                hole->Set(j, Arrangement2Halfedge::New(curr));                
+                hole->Set(j, Arrangement2Halfedge::New(curr));
             } while(++j,++curr != first);
         }
         return scope.Close(array);

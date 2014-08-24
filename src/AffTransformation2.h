@@ -1,12 +1,12 @@
-#ifndef POINT2_H
-#define POINT2_H
+#ifndef AFFTRANSFORMATION2_H
+#define AFFTRANSFORMATION2_H
 
 #include "CGALWrapper.h"
 #include "cgal_types.h"
 #include "v8.h"
 
 
-class Point2 : public CGALWrapper<Point2, Point_2>
+class AffTransformation2 : public CGALWrapper<AffTransformation2, Aff_transformation_2>
 {
 public:
 
@@ -20,24 +20,19 @@ public:
 
     // Attempt to parse a v8 argument into the CGAL object referred to by receiver.  Returns true
     // if parse was successful, false otherwise.
-    static bool ParseArg(v8::Local<v8::Value> arg, Point_2 &receiver);
+    static bool ParseArg(v8::Local<v8::Value> arg, Aff_transformation_2 &receiver);
 
     // Convert a CGAL object of the wrapped class to a POD v8 object.  If precise is set to false,
     // will attempt to render in terms of doubles for coordinates, and may lose precision.
-    static v8::Handle<v8::Value> ToPOD(const Point_2 &point, bool precise=true);
+    static v8::Handle<v8::Value> ToPOD(const Aff_transformation_2 &aff, bool precise=true);
 
 private:
 
     //
     //----- The following methods will be callable from JS.  These will mostly match
-    //      the semantics and names of CGAL::Point_2 methods.
+    //      the semantics and names of the wrapped CGAL class.
     //
-
-    static v8::Handle<v8::Value> IsEqual(const v8::Arguments &args);
-    static v8::Handle<v8::Value> X(const v8::Arguments &args);
-    static v8::Handle<v8::Value> Y(const v8::Arguments &args);
-    static v8::Handle<v8::Value> Transform(const v8::Arguments &args);
 
 };
 
-#endif // !defined(POINT2_H)
+#endif // !defined(AFFTRANSFORMATION2_H)

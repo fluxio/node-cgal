@@ -17,7 +17,7 @@ describe("CGAL.Line2", function() {
 
     it("should be renderable via toPOD", function() {
         var hl = new CGAL.Line2({p:[0,0], q:[1,0]});
-        var pod = hl.toPOD();
+        var pod = hl.toPOD(false);
         expect(pod.a).toBe(0);
         expect(pod.b).not.toBe(0);
         expect(pod.c).toBe(0);

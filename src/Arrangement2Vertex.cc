@@ -30,21 +30,15 @@ void Arrangement2Vertex::RegisterMethods()
 bool Arrangement2Vertex::ParseArg(Local<Value> arg, Arrangement_2::Vertex_handle &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
-        // This supports e.g.: newvertex = new CGAL.Arrangement2.Vertex(oldvertex);
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
-
-    } else {
-
-        return false;
-
     }
+
+    return false;
 }
 
 
-Handle<Value> Arrangement2Vertex::ToPOD(const Arrangement_2::Vertex_handle &vertex)
+Handle<Value> Arrangement2Vertex::ToPOD(const Arrangement_2::Vertex_handle &vertex, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();
@@ -83,7 +77,7 @@ Handle<Value> Arrangement2Vertex::ToString(const v8::Arguments &args)
             break;
         }
     } else {
-        str << vertex->point(); 
+        str << vertex->point();
     }
     str << "]";
     return scope.Close(String::New(str.str().c_str()));
@@ -139,7 +133,7 @@ Handle<Value> Arrangement2Vertex::IncidentHalfedges(const v8::Arguments &args)
         first = curr = vertex->incident_halfedges();
         uint32_t i = 0;
         do {
-            array->Set(i, Arrangement2Halfedge::New(curr));                
+            array->Set(i, Arrangement2Halfedge::New(curr));
         } while(++i,++curr != first);
         return scope.Close(array);
     }

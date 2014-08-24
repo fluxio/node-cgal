@@ -12,6 +12,11 @@ using namespace std;
 
 const char *PolygonSet2::Name = "PolygonSet2";
 
+ostream &operator<<(ostream &str, const Polygon_set_2 &polySet)
+{
+    return str;
+}
+
 
 void PolygonSet2::RegisterMethods()
 {
@@ -36,37 +41,33 @@ void PolygonSet2::RegisterMethods()
 
 bool PolygonSet2::ParseArg(Local<Value> arg, Polygon_set_2 &receiver)
 {
-    // This supports e.g.: newset = new CGAL.PolygonSet2(oldset);
     if (sConstructorTemplate->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
 
-    // This supports e.g.: newset = new CGAL.PolygonSet2(aPolygon2);
     Polygon_2 poly;
     if (Polygon2::ParseArg(arg, poly)) {
         receiver = Polygon_set_2(poly);
         return true;
     }
 
-    // This supports e.g.: newset = new CGAL.PolygonSet2(aPolygonWithHoles2);
     Polygon_with_holes_2 pwh;
     if (PolygonWithHoles2::ParseArg(arg, pwh)) {
         receiver = Polygon_set_2(pwh);
         return true;
     }
 
-    // no good...
     return false;
 }
 
 
-Handle<Value> PolygonSet2::ToPOD(const Polygon_set_2 &polySet)
+Handle<Value> PolygonSet2::ToPOD(const Polygon_set_2 &polySet, bool precise)
 {
     HandleScope scope;
     vector<Polygon_with_holes_2> pwhs;
     polySet.polygons_with_holes(back_inserter(pwhs));
-    return scope.Close(PolygonWithHoles2::SeqToPOD(pwhs.begin(), pwhs.end()));
+    return scope.Close(PolygonWithHoles2::SeqToPOD(pwhs.begin(), pwhs.end(), precise));
 }
 
 

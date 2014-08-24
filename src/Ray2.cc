@@ -33,96 +33,58 @@ void Ray2::RegisterMethods()
 bool Ray2::ParseArg(Local<Value> arg, Ray_2 &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
-        // This supports e.g.: newray = new CGAL.Segment2(oldray);
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
+    }
 
-    } else if (arg->IsObject()) {
-
+    if (arg->IsObject()) {
         Local<Object> inits = Local<Object>::Cast(arg);
 
-        // This supports e.g.: newline = new CGAL.Ray2({p:,d:});
-        if (inits->Has(String::NewSymbol("p")) &&
-            inits->Has(String::NewSymbol("d")))
+        Point_2 p;
+        Direction_2 d;
+        if (Point2::ParseArg(inits->Get(String::NewSymbol("p")), p) &&
+            Direction2::ParseArg(inits->Get(String::NewSymbol("d")), d))
         {
-            Point_2 p;
-            if (!Point2::ParseArg(inits->Get(String::NewSymbol("p")), p))
-                return false;
-
-            Direction_2 d;
-            if (!Direction2::ParseArg(inits->Get(String::NewSymbol("d")), d))
-                return false;
-
             receiver = Ray_2(p, d);
             return true;
         }
 
-        // This supports e.g.: newseg = new CGAL.Ray2({p:,q:});
-        if (inits->Has(String::NewSymbol("p")) &&
-            inits->Has(String::NewSymbol("q")))
+        Point_2 q;
+        if (Point2::ParseArg(inits->Get(String::NewSymbol("p")), p) &&
+            Point2::ParseArg(inits->Get(String::NewSymbol("q")), q))
         {
-            Point_2 p;
-            if (!Point2::ParseArg(inits->Get(String::NewSymbol("p")), p))
-                return false;
-
-            Point_2 q;
-            if (!Point2::ParseArg(inits->Get(String::NewSymbol("q")), q))
-                return false;
-
             receiver = Ray_2(p, q);
             return true;
         }
 
-        // This supports e.g.: newline = new CGAL.Ray2({p:,l:});
-        if (inits->Has(String::NewSymbol("p")) &&
-            inits->Has(String::NewSymbol("l")))
+        Line_2 l;
+        if (Point2::ParseArg(inits->Get(String::NewSymbol("p")), p) &&
+            Line2::ParseArg(inits->Get(String::NewSymbol("l")), l))
         {
-            Point_2 p;
-            if (!Point2::ParseArg(inits->Get(String::NewSymbol("p")), p))
-                return false;
-
-            Line_2 l;
-            if (!Line2::ParseArg(inits->Get(String::NewSymbol("l")), l))
-                return false;
-
             receiver = Ray_2(p, l);
             return true;
         }
 
-        // This supports e.g.: newline = new CGAL.Ray2({p:,v:});
-        if (inits->Has(String::NewSymbol("p")) &&
-            inits->Has(String::NewSymbol("v")))
+        Vector_2 v;
+        if (Point2::ParseArg(inits->Get(String::NewSymbol("p")), p) &&
+            Vector2::ParseArg(inits->Get(String::NewSymbol("v")), v))
         {
-            Point_2 p;
-            if (!Point2::ParseArg(inits->Get(String::NewSymbol("p")), p))
-                return false;
-
-            Vector_2 v;
-            if (!Vector2::ParseArg(inits->Get(String::NewSymbol("v")), v))
-                return false;
-
             receiver = Ray_2(p, v);
             return true;
         }
 
-        return false;
-
-    } else {
-
-        return false;
-
     }
+
+    return false;
 }
 
 
-Handle<Value> Ray2::ToPOD(const Ray_2 &ray)
+Handle<Value> Ray2::ToPOD(const Ray_2 &ray, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("p"), Point2::ToPOD(ray.source()));
-    obj->Set(String::NewSymbol("d"), Direction2::ToPOD(ray.direction()));
+    obj->Set(String::NewSymbol("p"), Point2::ToPOD(ray.source(), precise));
+    obj->Set(String::NewSymbol("d"), Direction2::ToPOD(ray.direction(), precise));
     return scope.Close(obj);
 }
 

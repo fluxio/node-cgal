@@ -18,24 +18,19 @@ public:
     // init function.
     static void RegisterMethods();
 
-    // Attempt to parse a v8 value into the CGAL Polygon_with_holes_2 object referred to by
-    // receiver.  Accepts either a PolygonWithHoles2 object, a Polygon2 constructable taken as the
-    // boundary (no holes), or an object of form {boundary:,holes:}, where the value of boundary
-    // is a Polygon2 constructable and the value of holes is an array of Polygon2 constructables.
-    // Returns true if parse was successful, false otherwise.
+    // Attempt to parse a v8 argument into the CGAL object referred to by receiver.  Returns true
+    // if parse was successful, false otherwise.
     static bool ParseArg(v8::Local<v8::Value> arg, Polygon_set_2 &receiver);
 
-    // Convert a CGAL::Polygon_with_holes_2 object to a POD v8 object.  This renders a poly with
-    // holes as an object of form {boundary:,holes:}, where the value of boundary is the POD rep
-    // of the boundary poly, and the value of holes is an array of POD reps of hole polys.  This
-    // may lose precision.
-    static v8::Handle<v8::Value> ToPOD(const Polygon_set_2 &polySet);
+    // Convert a CGAL object of the wrapped class to a POD v8 object.  If precise is set to false,
+    // will attempt to render in terms of doubles for coordinates, and may lose precision.
+    static v8::Handle<v8::Value> ToPOD(const Polygon_set_2 &polySet, bool precise=true);
 
 private:
 
     //
     //----- The following methods will be callable from JS.  These will mostly match
-    //      the semantics and names of CGAL::Polygon_with_holes_2 methods.
+    //      the semantics and names of the wrapped CGAL class.
     //
 
     static v8::Handle<v8::Value> PolygonsWithHoles(const v8::Arguments &args);
@@ -56,5 +51,9 @@ private:
     static v8::Handle<v8::Value> IsValid(const v8::Arguments &args);
 
 };
+
+namespace std {
+    ostream &operator<<(ostream &str, const Polygon_set_2 &pset);
+}
 
 #endif // !defined(POLYGONSET2_H)

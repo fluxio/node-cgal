@@ -1,6 +1,7 @@
 #ifndef CGALWRAPPER_H
 #define CGALWRAPPER_H
 
+#include "cgal_types.h"
 #include "node.h"
 #include "v8.h"
 
@@ -18,11 +19,14 @@ public:
 
     static v8::Handle<v8::Value> New(const CGALClass &CGALInstance);
 
+    template<typename NumberPrimitive>
+    static bool ParseArg(v8::Local<v8::Value> arg, NumberPrimitive &parsed);
+
     template<typename OutputIterator>
     static bool ParseSeqArg(v8::Local<v8::Value> arg, OutputIterator iterator);
 
     template<typename ForwardIterator>
-    static v8::Handle<v8::Value> SeqToPOD(ForwardIterator first, ForwardIterator last);
+    static v8::Handle<v8::Value> SeqToPOD(ForwardIterator first, ForwardIterator last, bool precise);
 
 protected:
 
@@ -35,6 +39,7 @@ protected:
     static v8::Handle<v8::Value> New(const v8::Arguments &args);
     static v8::Handle<v8::Value> ToPOD(const v8::Arguments &args);
     static v8::Handle<v8::Value> Inspect(const v8::Arguments &args);
+    static v8::Handle<v8::Value> ToString(const v8::Arguments &args);
 
 };
 
