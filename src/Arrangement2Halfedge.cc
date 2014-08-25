@@ -30,21 +30,15 @@ void Arrangement2Halfedge::RegisterMethods()
 bool Arrangement2Halfedge::ParseArg(Local<Value> arg, Arrangement_2::Halfedge_handle &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
-        // This supports e.g.: newhalfedge = new CGAL.Arrangement2.Halfedge(oldhalfedge);
-
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
-
-    } else {
-
-        return false;
-
     }
+
+    return false;
 }
 
 
-Handle<Value> Arrangement2Halfedge::ToPOD(const Arrangement_2::Halfedge_handle &halfedge)
+Handle<Value> Arrangement2Halfedge::ToPOD(const Arrangement_2::Halfedge_handle &halfedge, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();
@@ -58,9 +52,9 @@ Handle<Value> Arrangement2Halfedge::ToString(const v8::Arguments &args)
     Arrangement_2::Halfedge_handle &edge = ExtractWrapped(args.This());
     ostringstream str;
     str << "[object "  << Name << " " << edge.ptr() << " ";
-    if (edge->is_fictitious()) { 
+    if (edge->is_fictitious()) {
         str << "FIC ";
-    } 
+    }
     str << "]";
     return scope.Close(String::New(str.str().c_str()));
 }
@@ -167,7 +161,7 @@ Handle<Value> Arrangement2Halfedge::CCB(const v8::Arguments &args)
         first = curr = edge->ccb();
         uint32_t i = 0;
         do {
-            array->Set(i, Arrangement2Halfedge::New(curr));                
+            array->Set(i, Arrangement2Halfedge::New(curr));
         } while(++i,++curr != first);
         return scope.Close(array);
     }

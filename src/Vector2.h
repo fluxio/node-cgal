@@ -6,8 +6,6 @@
 #include "v8.h"
 
 
-// Wraps the CGAL::Vector_2 class
-
 class Vector2 : public CGALWrapper<Vector2, Vector_2>
 {
 public:
@@ -20,19 +18,19 @@ public:
     // init function.
     static void RegisterMethods();
 
-    // Attempt to parse a v8 object into the CGAL Vector_2 object referred to by receiver. Accepts
-    // either a Vector2 object or ... Returns true if parse was successful, false otherwise.
+    // Attempt to parse a v8 argument into the CGAL object referred to by receiver.  Returns true
+    // if parse was successful, false otherwise.
     static bool ParseArg(v8::Local<v8::Value> arg, Vector_2 &receiver);
 
-    // Convert a CGAL::Vector_2 object to a POD v8 object.  This renders a vector to an object
-    // ... and may lose precision.
-    static v8::Handle<v8::Value> ToPOD(const Vector_2 &vector);
+    // Convert a CGAL object of the wrapped class to a POD v8 object.  If precise is set to false,
+    // will attempt to render in terms of doubles for coordinates, and may lose precision.
+    static v8::Handle<v8::Value> ToPOD(const Vector_2 &vector, bool precise=true);
 
 private:
 
     //
     //----- The following methods will be callable from JS.  These will mostly match
-    //      the semantics and names of CGAL::Vector_2 methods.
+    //      the semantics and names of the wrapped CGAL class.
     //
 
 };

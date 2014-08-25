@@ -1,5 +1,6 @@
 #include "Polygon2.h"
 #include "Point2.h"
+#include "AffTransformation2.h"
 #include "cgal_args.h"
 
 using namespace v8;
@@ -19,44 +20,32 @@ void Polygon2::RegisterMethods()
     SetPrototypeMethod(sConstructorTemplate, "orientedSide", OrientedSide);
     SetPrototypeMethod(sConstructorTemplate, "boundedSide", BoundedSide);
     SetPrototypeMethod(sConstructorTemplate, "area", Area);
+    SetPrototypeMethod(sConstructorTemplate, "coords", Coords);
+
+    SetMethod(sConstructorTemplate, "transform", Transform);
 }
 
 
 bool Polygon2::ParseArg(v8::Local<v8::Value> arg, Polygon_2 &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
-        // This supports e.g.: newPolygon = new CGAL.Polygon2(oldPolygon);
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
-
-    } else if (arg->IsArray()) {
-
-        // This supports e.g.: newPolygon = new CGAL.Polygon2([point1, point2, ... ])
-        bool parsed = Point2::ParseSeqArg(arg, back_inserter(receiver));
-
-        // We've decided for now that constructing with an empty array, though valid in the CGAL
-        // API, is probably an unintentional programming error, so flag as a parse error.  (If in
-        // the future this extra seatbelt proves troublesome for algorithmic code, just remove it.)
-        if (parsed && (receiver.size() == 0))
-            return false;
-
-        return parsed;
-
-    } else {
-
-        return false;
-
     }
+
+    if (arg->IsArray()) {
+        return Point2::ParseSeqArg(arg, back_inserter(receiver));
+    }
+
+    return false;
 }
 
 
-Handle<Value> Polygon2::ToPOD(const Polygon_2 &poly)
+Handle<Value> Polygon2::ToPOD(const Polygon_2 &poly, bool precise)
 {
     HandleScope scope;
-    return scope.Close(Point2::SeqToPOD(poly.vertices_begin(), poly.vertices_end()));
+    return scope.Close(Point2::SeqToPOD(poly.vertices_begin(), poly.vertices_end(), precise));
 }
-
 
 
 Handle<Value> Polygon2::IsEqual(const Arguments &args)
@@ -158,4 +147,43 @@ Handle<Value> Polygon2::Area(const Arguments &args)
     catch (const exception &e) {
         return ThrowException(String::New(e.what()));
     }
+}
+
+
+Handle<Value> Polygon2::Transform(const Arguments &args)
+{
+  HandleScope scope;
+  try {
+    ARGS_ASSERT(args.Length() == 2);
+
+    Aff_transformation_2 afft;
+    if (!AffTransformation2::ParseArg(args[0], afft)) {
+      ARGS_ASSERT(false);
+    }
+
+    Polygon_2 poly;
+    if (!ParseArg(args[1], poly)) {
+      ARGS_ASSERT(false);
+    }
+
+    Polygon_2 xpoly = CGAL::transform(afft, poly);
+    return scope.Close(New(xpoly));
+  }
+  catch (const exception &e) {
+    return ThrowException(String::New(e.what()));
+  }
+}
+
+
+Handle<Value> Polygon2::Coords(const Arguments &args)
+{
+    HandleScope scope;
+    Polygon_2 &poly = ExtractWrapped(args.This());
+    Local<Array> array = Array::New();
+    Vertex_iterator it;
+    uint32_t i;
+    for(it=poly.vertices_begin(),i=0; it!=poly.vertices_end(); ++it,++i) {
+        array->Set(i, Point2::New(*it));
+    }
+    return scope.Close(array);
 }

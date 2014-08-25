@@ -59,20 +59,15 @@ void Arrangement2::RegisterMethods()
 bool Arrangement2::ParseArg(Local<Value> arg, Arrangement_2 &receiver)
 {
     if (sConstructorTemplate->HasInstance(arg)) {
-
-        // This supports e.g.: newArrangement = new CGAL.Arrangement2(oldArrangement);
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
-
-    } else {
-
-        return false;
-
     }
+
+    return false;
 }
 
 
-Handle<Value> Arrangement2::ToPOD(const Arrangement_2 &arrangement)
+Handle<Value> Arrangement2::ToPOD(const Arrangement_2 &arrangement, bool precise)
 {
     HandleScope scope;
     Local<Object> obj = Object::New();
@@ -101,7 +96,7 @@ Handle<Value> Arrangement2::ToPOD(const Arrangement_2 &arrangement)
             do { *bit++  = curr->source()->point(); } while (++curr != circ);
 
             // Add poly created from edge source points to face array.
-            faceArray->Set(faceNum, Polygon2::ToPOD(poly));
+            faceArray->Set(faceNum, Polygon2::ToPOD(poly, precise));
             faceNum++;
         }
     }
@@ -457,7 +452,7 @@ Handle<Value> Arrangement2::InsertInFaceInterior(const v8::Arguments &args)
             && Curve2::ParseArg(args[0], curve)
             && Arrangement2Face::ParseArg(args[1], face))
         {
-            return scope.Close(Arrangement2Halfedge::New(arrangement.insert_in_face_interior(curve, face)));            
+            return scope.Close(Arrangement2Halfedge::New(arrangement.insert_in_face_interior(curve, face)));
         }
 
         ARGS_ASSERT(false);
@@ -500,7 +495,7 @@ Handle<Value> Arrangement2::InsertFromLeftVertex(const v8::Arguments &args)
             && Curve2::ParseArg(args[0], curve)
             && Arrangement2Halfedge::ParseArg(args[1], edge))
         {
-            return scope.Close(Arrangement2Halfedge::New(arrangement.insert_from_left_vertex(curve, edge)));            
+            return scope.Close(Arrangement2Halfedge::New(arrangement.insert_from_left_vertex(curve, edge)));
         }
 
         ARGS_ASSERT(false);
@@ -543,7 +538,7 @@ Handle<Value> Arrangement2::InsertFromRightVertex(const v8::Arguments &args)
             && Curve2::ParseArg(args[0], curve)
             && Arrangement2Halfedge::ParseArg(args[1], edge))
         {
-            return scope.Close(Arrangement2Halfedge::New(arrangement.insert_from_right_vertex(curve, edge)));            
+            return scope.Close(Arrangement2Halfedge::New(arrangement.insert_from_right_vertex(curve, edge)));
         }
 
         ARGS_ASSERT(false);
@@ -617,7 +612,7 @@ Handle<Value> Arrangement2::ModifyVertex(const v8::Arguments &args)
         ARGS_ASSERT(args.Length() == 2);
         ARGS_PARSE_LOCAL(Arrangement2Vertex::ParseArg, Arrangement_2::Vertex_handle, vertex, args[0]);
         ARGS_PARSE_LOCAL(Point2::ParseArg, Point_2, point, args[1]);
-        return scope.Close(Arrangement2Vertex::New(arrangement.modify_vertex(vertex, point)));            
+        return scope.Close(Arrangement2Vertex::New(arrangement.modify_vertex(vertex, point)));
     }
     catch (const exception &e) {
         return ThrowException(String::New(e.what()));
@@ -632,7 +627,7 @@ Handle<Value> Arrangement2::RemoveIsolatedVertex(const v8::Arguments &args)
         Arrangement_2 &arrangement = ExtractWrapped(args.This());
         ARGS_ASSERT(args.Length() == 1);
         ARGS_PARSE_LOCAL(Arrangement2Vertex::ParseArg, Arrangement_2::Vertex_handle, vertex, args[0]);
-        return scope.Close(Arrangement2Face::New(arrangement.remove_isolated_vertex(vertex)));            
+        return scope.Close(Arrangement2Face::New(arrangement.remove_isolated_vertex(vertex)));
     }
     catch (const exception &e) {
         return ThrowException(String::New(e.what()));
@@ -648,7 +643,7 @@ Handle<Value> Arrangement2::ModifyEdge(const v8::Arguments &args)
         ARGS_ASSERT(args.Length() == 2);
         ARGS_PARSE_LOCAL(Arrangement2Halfedge::ParseArg, Arrangement_2::Halfedge_handle, halfedge, args[0]);
         ARGS_PARSE_LOCAL(Curve2::ParseArg, Curve_2, curve, args[1]);
-        return scope.Close(Arrangement2Halfedge::New(arrangement.modify_edge(halfedge, curve)));            
+        return scope.Close(Arrangement2Halfedge::New(arrangement.modify_edge(halfedge, curve)));
     }
     catch (const exception &e) {
         return ThrowException(String::New(e.what()));
@@ -665,7 +660,7 @@ Handle<Value> Arrangement2::SplitEdge(const v8::Arguments &args)
         ARGS_PARSE_LOCAL(Arrangement2Halfedge::ParseArg, Arrangement_2::Halfedge_handle, halfedge, args[0]);
         ARGS_PARSE_LOCAL(Curve2::ParseArg, Curve_2, curve1, args[1]);
         ARGS_PARSE_LOCAL(Curve2::ParseArg, Curve_2, curve2, args[2]);
-        return scope.Close(Arrangement2Halfedge::New(arrangement.split_edge(halfedge, curve1, curve2)));            
+        return scope.Close(Arrangement2Halfedge::New(arrangement.split_edge(halfedge, curve1, curve2)));
     }
     catch (const exception &e) {
         return ThrowException(String::New(e.what()));
@@ -682,7 +677,7 @@ Handle<Value> Arrangement2::MergeEdge(const v8::Arguments &args)
         ARGS_PARSE_LOCAL(Arrangement2Halfedge::ParseArg, Arrangement_2::Halfedge_handle, halfedge1, args[0]);
         ARGS_PARSE_LOCAL(Arrangement2Halfedge::ParseArg, Arrangement_2::Halfedge_handle, halfedge2, args[1]);
         ARGS_PARSE_LOCAL(Curve2::ParseArg, Curve_2, curve, args[2]);
-        return scope.Close(Arrangement2Halfedge::New(arrangement.merge_edge(halfedge1, halfedge2, curve)));            
+        return scope.Close(Arrangement2Halfedge::New(arrangement.merge_edge(halfedge1, halfedge2, curve)));
     }
     catch (const exception &e) {
         return ThrowException(String::New(e.what()));
@@ -698,7 +693,7 @@ Handle<Value> Arrangement2::RemoveEdge(const v8::Arguments &args)
         Arrangement_2 &arrangement = ExtractWrapped(args.This());
 
         Arrangement_2::Halfedge_handle edge;
- 
+
         if ((args.Length() == 1)
             && Arrangement2Halfedge::ParseArg(args[0], edge))
         {

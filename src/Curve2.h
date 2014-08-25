@@ -6,8 +6,6 @@
 #include "v8.h"
 
 
-// Wraps the CGAL::Arr_linear_traits_2::Curve_2 class
-
 class Curve2 : public CGALWrapper<Curve2, Curve_2>
 {
 public:
@@ -20,20 +18,19 @@ public:
     // init function.
     static void RegisterMethods();
 
-    // Attempt to parse a v8 argument into the CGAL Curve_2 object referred to by receiver.  Accepts 
-    // either a Curve2 JS object or ... 
-    // Returns true if parse was successful, false otherwise.
+    // Attempt to parse a v8 argument into the CGAL object referred to by receiver.  Returns true
+    // if parse was successful, false otherwise.
     static bool ParseArg(v8::Local<v8::Value> arg, Curve_2 &receiver);
 
-    // Convert a CGAL Curve_2 object to a POD v8 object.  This renders a Curve_2 to ...
-    // and may lose precision.
-    static v8::Handle<v8::Value> ToPOD(const Curve_2 &curve);
+    // Convert a CGAL object of the wrapped class to a POD v8 object.  If precise is set to false,
+    // will attempt to render in terms of doubles for coordinates, and may lose precision.
+    static v8::Handle<v8::Value> ToPOD(const Curve_2 &curve, bool precise=true);
 
 private:
 
     //
     //----- The following methods will be callable from JS.  These will mostly match
-    //      the semantics and names of CGAL Curve_2 methods.
+    //      the semantics and names of the wrapped CGAL class.
     //
 
     static v8::Handle<v8::Value> IsSegment(const v8::Arguments &args);
