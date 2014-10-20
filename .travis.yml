@@ -4,12 +4,12 @@ node_js:
 before_install:
   - sudo apt-get update -q
   - sudo apt-get install -q libgmp-dev libmpfr-dev libboost-all-dev
-  - curl https://gforge.inria.fr/frs/download.php/33525/CGAL-4.4.tar.gz | tar zxv
-  - (cd CGAL-4.4; CXXFLAGS=-fPIC cmake -DBUILD_SHARED_LIBS=FALSE .; make CGAL)
+  - curl https://gforge.inria.fr/frs/download.php/file/34149/CGAL-4.5.tar.gz | tar zxv
+  - (cd CGAL-4.5; CXXFLAGS=-fPIC cmake -DBUILD_SHARED_LIBS=FALSE .; make CGAL)
 env:
   global:
-    CGAL_GYP_LDFLAGS: -L$TRAVIS_BUILD_DIR/CGAL-4.4/lib
-    CGAL_GYP_INCLUDES: $TRAVIS_BUILD_DIR/CGAL-4.4/include
+    CGAL_GYP_LDFLAGS: -L$TRAVIS_BUILD_DIR/CGAL-4.5/lib
+    CGAL_GYP_INCLUDES: $TRAVIS_BUILD_DIR/CGAL-4.5/include
   matrix:
     -
     - GGAL_USE_EPECK=1
