@@ -16,15 +16,15 @@ public:
     // Add our function templates to the package exports, and return string to be used to name
     // the class and constructor in JS.  Called indirectly at module load time via the module
     // init function.
-    static void RegisterMethods();
+    static void RegisterMethods(v8::Isolate *isolate);
 
     // Attempt to parse a v8 argument into the CGAL object referred to by receiver.  Returns true
     // if parse was successful, false otherwise.
-    static bool ParseArg(v8::Local<v8::Value> arg, Ray_2 &receiver);
+    static bool ParseArg(v8::Isolate *isolate, v8::Local<v8::Value> arg, Ray_2 &receiver);
 
     // Convert a CGAL object of the wrapped class to a POD v8 object.  If precise is set to false,
     // will attempt to render in terms of doubles for coordinates, and may lose precision.
-    static v8::Handle<v8::Value> ToPOD(const Ray_2 &ray, bool precise=true);
+    static v8::Local<v8::Value> ToPOD(v8::Isolate *isolate, const Ray_2 &ray, bool precise=true);
 
 private:
 
@@ -33,18 +33,18 @@ private:
     //      the semantics and names of the wrapped CGAL class.
     //
 
-    static v8::Handle<v8::Value> IsEqual(const v8::Arguments &args);
-    static v8::Handle<v8::Value> Source(const v8::Arguments &args);
-    static v8::Handle<v8::Value> Point(const v8::Arguments &args);
-    static v8::Handle<v8::Value> Direction(const v8::Arguments &args);
-    static v8::Handle<v8::Value> ToVector(const v8::Arguments &args);
-    static v8::Handle<v8::Value> SupportingLine(const v8::Arguments &args);
-    static v8::Handle<v8::Value> Opposite(const v8::Arguments &args);
-    static v8::Handle<v8::Value> IsDegenerate(const v8::Arguments &args);
-    static v8::Handle<v8::Value> IsHorizontal(const v8::Arguments &args);
-    static v8::Handle<v8::Value> IsVertical(const v8::Arguments &args);
-    static v8::Handle<v8::Value> HasOn(const v8::Arguments &args);
-    static v8::Handle<v8::Value> CollinearHasOn(const v8::Arguments &args);
+    static void IsEqual(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void Source(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void Point(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void Direction(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void ToVector(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void SupportingLine(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void Opposite(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void IsDegenerate(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void IsHorizontal(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void IsVertical(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void HasOn(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void CollinearHasOn(const v8::FunctionCallbackInfo<v8::Value> &info);
 
 };
 

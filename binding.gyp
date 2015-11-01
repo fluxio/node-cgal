@@ -36,7 +36,7 @@
                     'GCC_ENABLE_CPP_RTTI': 'YES',
                     'OTHER_CPLUSPLUSFLAGS': [
                         '-Wno-unneeded-internal-declaration',
-                        '-mmacosx-version-min=10.7',
+                        '-mmacosx-version-min=10.11',
                         '-stdlib=libc++',
                         '<!@(echo $CGAL_GYP_CXXFLAGS)'
                      ],

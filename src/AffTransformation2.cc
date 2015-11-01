@@ -10,14 +10,16 @@ using namespace std;
 const char *AffTransformation2::Name = "AffTransformation2";
 
 
-void AffTransformation2::RegisterMethods()
+void AffTransformation2::RegisterMethods(v8::Isolate *isolate)
 {
 }
 
 
-bool AffTransformation2::ParseArg(Local<Value> arg, Aff_transformation_2 &receiver)
+bool AffTransformation2::ParseArg(Isolate *isolate, Local<Value> arg, Aff_transformation_2 &receiver)
 {
-    if (sConstructorTemplate->HasInstance(arg)) {
+    HandleScope scope(isolate);
+
+    if (sConstructorTemplate.Get(isolate)->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
@@ -28,14 +30,14 @@ bool AffTransformation2::ParseArg(Local<Value> arg, Aff_transformation_2 &receiv
         if (inits->Length() >= 6 && inits->Length() <= 7) {
 
             K::RT m00, m01, m02, m10, m11, m12, hw(1);
-            if (::ParseArg(inits->Get(0), m00) &&
-                ::ParseArg(inits->Get(1), m01) &&
-                ::ParseArg(inits->Get(2), m02) &&
-                ::ParseArg(inits->Get(3), m10) &&
-                ::ParseArg(inits->Get(4), m11) &&
-                ::ParseArg(inits->Get(5), m12))
+            if (::ParseArg(isolate, inits->Get(0), m00) &&
+                ::ParseArg(isolate, inits->Get(1), m01) &&
+                ::ParseArg(isolate, inits->Get(2), m02) &&
+                ::ParseArg(isolate, inits->Get(3), m10) &&
+                ::ParseArg(isolate, inits->Get(4), m11) &&
+                ::ParseArg(isolate, inits->Get(5), m12))
             {
-                if ((inits->Length() == 7) && !::ParseArg(inits->Get(6), hw))
+                if ((inits->Length() == 7) && !::ParseArg(isolate, inits->Get(6), hw))
                     return false;
 
                 receiver = Aff_transformation_2(m00, m01, m02, m10, m11, m12, hw);
@@ -48,10 +50,10 @@ bool AffTransformation2::ParseArg(Local<Value> arg, Aff_transformation_2 &receiv
 
             Direction_2 dir;
             K::RT num, den(1);
-            if (Direction2::ParseArg(inits->Get(0), dir) &&
-                ::ParseArg(inits->Get(1), num))
+            if (Direction2::ParseArg(isolate, inits->Get(0), dir) &&
+                ::ParseArg(isolate, inits->Get(1), num))
             {
-                if ((inits->Length() == 3) && !::ParseArg(inits->Get(2), den))
+                if ((inits->Length() == 3) && !::ParseArg(isolate, inits->Get(2), den))
                     return false;
 
                 receiver = Aff_transformation_2(Rotation(), dir, num, den);
@@ -66,10 +68,10 @@ bool AffTransformation2::ParseArg(Local<Value> arg, Aff_transformation_2 &receiv
 }
 
 
-Handle<Value> AffTransformation2::ToPOD(const Aff_transformation_2 &aff, bool precise)
+Local<Value> AffTransformation2::ToPOD(Isolate *isolate, const Aff_transformation_2 &aff, bool precise)
 {
-    HandleScope scope;
-    Local<Array> array = Array::New(7);
+    EscapableHandleScope scope(isolate);
+    Local<Array> array = Array::New(isolate, 7);
 
     try {
         for(int i=0; i<7; ++i) {
@@ -83,17 +85,17 @@ Handle<Value> AffTransformation2::ToPOD(const Aff_transformation_2 &aff, bool pr
 #else
                 str << a;
 #endif
-                array->Set(i, String::New(str.str().c_str()));
+                array->Set(i, String::NewFromUtf8(isolate, str.str().c_str()));
             } else {
-                array->Set(i, Number::New(CGAL::to_double(a)));
+                array->Set(i, Number::New(isolate, CGAL::to_double(a)));
             }
         }
     }
 
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 
-    return scope.Close(array);
+    return scope.Escape(array);
 }
 

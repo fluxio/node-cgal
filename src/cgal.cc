@@ -58,9 +58,7 @@ namespace {
 }
 
 
-NODE_MODULE(cgal, init);
-
-void init(Handle<Object> exports)
+void init(Local<Object> exports)
 {
     NODE_DEFINE_CONSTANT(exports, NEGATIVE);
     NODE_DEFINE_CONSTANT(exports, ZERO);
@@ -106,3 +104,8 @@ void init(Handle<Object> exports)
     Segment2::Init(exports);
     Vector2::Init(exports);
 }
+
+
+NODE_MODULE(cgal, init);
+
+

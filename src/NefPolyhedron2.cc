@@ -19,18 +19,20 @@ namespace {
 const char *NefPolyhedron2::Name = "NefPolyhedron2";
 
 
-void NefPolyhedron2::RegisterMethods()
+void NefPolyhedron2::RegisterMethods(Isolate *isolate)
 {
-    NODE_DEFINE_CONSTANT(sConstructorTemplate, EXCLUDED);
-    NODE_DEFINE_CONSTANT(sConstructorTemplate, INCLUDED);
-    NODE_DEFINE_CONSTANT(sConstructorTemplate, EMPTY);
-    NODE_DEFINE_CONSTANT(sConstructorTemplate, COMPLETE);
+    // HandleScope scope(isolate);
+    // Local<FunctionTemplate> constructorTemplate = sConstructorTemplate.Get(isolate);
+    // NODE_DEFINE_CONSTANT(constructorTemplate, EXCLUDED);
+    // NODE_DEFINE_CONSTANT(constructorTemplate, INCLUDED);
+    // NODE_DEFINE_CONSTANT(constructorTemplate, EMPTY);
+    // NODE_DEFINE_CONSTANT(constructorTemplate, COMPLETE);
 }
 
 
-bool NefPolyhedron2::ParseArg(Local<Value> arg, Nef_polyhedron_2 &receiver)
+bool NefPolyhedron2::ParseArg(v8::Isolate *isolate, Local<Value> arg, Nef_polyhedron_2 &receiver)
 {
-    if (sConstructorTemplate->HasInstance(arg)) {
+    if (sConstructorTemplate.Get(isolate)->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
@@ -39,9 +41,9 @@ bool NefPolyhedron2::ParseArg(Local<Value> arg, Nef_polyhedron_2 &receiver)
 }
 
 
-Handle<Value> NefPolyhedron2::ToPOD(const Nef_polyhedron_2 &nef, bool precise)
+Local<Value> NefPolyhedron2::ToPOD(v8::Isolate *isolate, const Nef_polyhedron_2 &nef, bool precise)
 {
-    HandleScope scope;
-    Local<Object> obj = Object::New();
-    return scope.Close(obj);
+    EscapableHandleScope scope(isolate);
+    Local<Object> obj = Object::New(isolate);
+    return scope.Escape(obj);
 }

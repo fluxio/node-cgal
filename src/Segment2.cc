@@ -10,16 +10,20 @@ using namespace std;
 const char *Segment2::Name = "Segment2";
 
 
-void Segment2::RegisterMethods()
+void Segment2::RegisterMethods(Isolate *isolate)
 {
-    SetPrototypeMethod(sConstructorTemplate, "isVertical", IsVertical);
-    SetPrototypeMethod(sConstructorTemplate, "isHorizontal", IsHorizontal);
+    HandleScope scope(isolate);
+    Local<FunctionTemplate> constructorTemplate = sConstructorTemplate.Get(isolate);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isVertical", IsVertical);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isHorizontal", IsHorizontal);
 }
 
 
-bool Segment2::ParseArg(Local<Value> arg, Segment_2 &receiver)
+bool Segment2::ParseArg(Isolate *isolate, Local<Value> arg, Segment_2 &receiver)
 {
-    if (sConstructorTemplate->HasInstance(arg)) {
+    HandleScope scope(isolate);
+
+    if (sConstructorTemplate.Get(isolate)->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
@@ -29,8 +33,8 @@ bool Segment2::ParseArg(Local<Value> arg, Segment_2 &receiver)
 
         Point_2 source, target;
 
-        if (Point2::ParseArg(ends->Get(String::NewSymbol("source")), source) &&
-            Point2::ParseArg(ends->Get(String::NewSymbol("target")), target))
+        if (Point2::ParseArg(isolate, ends->Get(SYMBOL(isolate, "source")), source) &&
+            Point2::ParseArg(isolate, ends->Get(SYMBOL(isolate, "target")), target))
         {
             receiver = Segment_2(source, target);
             return true;
@@ -42,37 +46,39 @@ bool Segment2::ParseArg(Local<Value> arg, Segment_2 &receiver)
 }
 
 
-Handle<Value> Segment2::ToPOD(const Segment_2 &segment, bool precise)
+Local<Value> Segment2::ToPOD(Isolate *isolate, const Segment_2 &segment, bool precise)
 {
-    HandleScope scope;
-    Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("source"), Point2::ToPOD(segment.source(), precise));
-    obj->Set(String::NewSymbol("target"), Point2::ToPOD(segment.target(), precise));
-    return scope.Close(obj);
+    EscapableHandleScope scope(isolate);
+    Local<Object> obj = Object::New(isolate);
+    obj->Set(SYMBOL(isolate, "source"), Point2::ToPOD(isolate, segment.source(), precise));
+    obj->Set(SYMBOL(isolate, "target"), Point2::ToPOD(isolate, segment.target(), precise));
+    return scope.Escape(obj);
 }
 
 
-Handle<Value> Segment2::IsHorizontal(const Arguments &args)
+void Segment2::IsHorizontal(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Segment_2 &segment = ExtractWrapped(args.This());
-        return scope.Close(Boolean::New(segment.is_horizontal()));
+        Segment_2 &segment = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Boolean::New(isolate, segment.is_horizontal()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Segment2::IsVertical(const Arguments &args)
+void Segment2::IsVertical(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Segment_2 &segment = ExtractWrapped(args.This());
-        return scope.Close(Boolean::New(segment.is_vertical()));
+        Segment_2 &segment = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Boolean::New(isolate, segment.is_vertical()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }

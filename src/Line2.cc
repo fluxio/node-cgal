@@ -10,19 +10,23 @@ using namespace std;
 const char *Line2::Name = "Line2";
 
 
-void Line2::RegisterMethods()
+void Line2::RegisterMethods(Isolate *isolate)
 {
-    SetPrototypeMethod(sConstructorTemplate, "isEqual", IsEqual);
-    SetPrototypeMethod(sConstructorTemplate, "isDegenerate", IsDegenerate);
-    SetPrototypeMethod(sConstructorTemplate, "isHorizontal", IsHorizontal);
-    SetPrototypeMethod(sConstructorTemplate, "isVertical", IsVertical);
-    SetPrototypeMethod(sConstructorTemplate, "opposite", Opposite);
+    HandleScope scope(isolate);
+    Local<FunctionTemplate> constructorTemplate = sConstructorTemplate.Get(isolate);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isEqual", IsEqual);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isDegenerate", IsDegenerate);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isHorizontal", IsHorizontal);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isVertical", IsVertical);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "opposite", Opposite);
 }
 
 
-bool Line2::ParseArg(Local<Value> arg, Line_2 &receiver)
+bool Line2::ParseArg(Isolate *isolate, Local<Value> arg, Line_2 &receiver)
 {
-    if (sConstructorTemplate->HasInstance(arg)) {
+    HandleScope scope(isolate);
+
+    if (sConstructorTemplate.Get(isolate)->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
@@ -31,17 +35,17 @@ bool Line2::ParseArg(Local<Value> arg, Line_2 &receiver)
         Local<Object> inits = Local<Object>::Cast(arg);
 
         K::FT a, b, c;
-        if (::ParseArg(inits->Get(String::NewSymbol("a")), a) &&
-            ::ParseArg(inits->Get(String::NewSymbol("b")), b) &&
-            ::ParseArg(inits->Get(String::NewSymbol("c")), c))
+        if (::ParseArg(isolate, inits->Get(SYMBOL(isolate, "a")), a) &&
+            ::ParseArg(isolate, inits->Get(SYMBOL(isolate, "b")), b) &&
+            ::ParseArg(isolate, inits->Get(SYMBOL(isolate, "c")), c))
         {
             receiver = Line_2(a, b, c);
             return true;
         }
 
         Point_2 p, q;
-        if (Point2::ParseArg(inits->Get(String::NewSymbol("p")), p) &&
-            Point2::ParseArg(inits->Get(String::NewSymbol("q")), q))
+        if (Point2::ParseArg(isolate, inits->Get(SYMBOL(isolate, "p")), p) &&
+            Point2::ParseArg(isolate, inits->Get(SYMBOL(isolate, "q")), q))
         {
             receiver = Line_2(p, q);
             return true;
@@ -53,10 +57,10 @@ bool Line2::ParseArg(Local<Value> arg, Line_2 &receiver)
 }
 
 
-Handle<Value> Line2::ToPOD(const Line_2 &line, bool precise)
+Local<Value> Line2::ToPOD(Isolate *isolate, const Line_2 &line, bool precise)
 {
-    HandleScope scope;
-    Local<Object> obj = Object::New();
+    EscapableHandleScope scope(isolate);
+    Local<Object> obj = Object::New(isolate);
 
     if (precise) {
 
@@ -66,7 +70,7 @@ Handle<Value> Line2::ToPOD(const Line_2 &line, bool precise)
 #else
         astr << setprecision(20) << line.a();
 #endif
-        obj->Set(String::NewSymbol("a"), String::New(astr.str().c_str()));
+        obj->Set(SYMBOL(isolate, "a"), String::NewFromUtf8(isolate, astr.str().c_str()));
 
         ostringstream bstr;
 #if CGAL_USE_EPECK
@@ -74,7 +78,7 @@ Handle<Value> Line2::ToPOD(const Line_2 &line, bool precise)
 #else
         bstr << setprecision(20) << line.b();
 #endif
-        obj->Set(String::NewSymbol("b"), String::New(bstr.str().c_str()));
+        obj->Set(SYMBOL(isolate, "b"), String::NewFromUtf8(isolate, bstr.str().c_str()));
 
         ostringstream cstr;
 #if CGAL_USE_EPECK
@@ -82,80 +86,87 @@ Handle<Value> Line2::ToPOD(const Line_2 &line, bool precise)
 #else
         cstr << setprecision(20) << line.c();
 #endif
-        obj->Set(String::NewSymbol("c"), String::New(cstr.str().c_str()));
+        obj->Set(SYMBOL(isolate, "c"), String::NewFromUtf8(isolate, cstr.str().c_str()));
 
     } else {
-        obj->Set(String::NewSymbol("a"), Number::New(CGAL::to_double(line.a())));
-        obj->Set(String::NewSymbol("b"), Number::New(CGAL::to_double(line.b())));
-        obj->Set(String::NewSymbol("c"), Number::New(CGAL::to_double(line.c())));
+
+        obj->Set(SYMBOL(isolate, "a"), Number::New(isolate, CGAL::to_double(line.a())));
+        obj->Set(SYMBOL(isolate, "b"), Number::New(isolate, CGAL::to_double(line.b())));
+        obj->Set(SYMBOL(isolate, "c"), Number::New(isolate, CGAL::to_double(line.c())));
+
     }
 
-    return scope.Close(obj);
+    return scope.Escape(obj);
 }
 
 
-Handle<Value> Line2::IsEqual(const Arguments &args)
+void Line2::IsEqual(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Line_2 &thisLine = ExtractWrapped(args.This());
-        ARGS_ASSERT(args.Length() == 1);
-        ARGS_PARSE_LOCAL(Line2::ParseArg, Line_2, otherLine, args[0]);
-        return scope.Close(Boolean::New(thisLine == otherLine));
+        Line_2 &thisLine = ExtractWrapped(info.This());
+        ARGS_ASSERT(isolate, info.Length() == 1);
+        ARGS_PARSE_LOCAL(isolate, Line2::ParseArg, Line_2, otherLine, info[0]);
+        info.GetReturnValue().Set(Boolean::New(isolate, thisLine == otherLine));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
-    }
-}
-
-
-Handle<Value> Line2::IsDegenerate(const Arguments &args)
-{
-    HandleScope scope;
-    try {
-        Line_2 &line = ExtractWrapped(args.This());
-        return scope.Close(Boolean::New(line.is_degenerate()));
-    }
-    catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Line2::IsHorizontal(const Arguments &args)
+void Line2::IsDegenerate(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Line_2 &line = ExtractWrapped(args.This());
-        return scope.Close(Boolean::New(line.is_horizontal()));
+        Line_2 &line = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Boolean::New(isolate, line.is_degenerate()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Line2::IsVertical(const Arguments &args)
+void Line2::IsHorizontal(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Line_2 &line = ExtractWrapped(args.This());
-        return scope.Close(Boolean::New(line.is_vertical()));
+        Line_2 &line = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Boolean::New(isolate, line.is_horizontal()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Line2::Opposite(const Arguments &args)
+void Line2::IsVertical(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Line_2 &line = ExtractWrapped(args.This());
-        return scope.Close(Line2::New(line.opposite()));
+        Line_2 &line = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Boolean::New(isolate, line.is_vertical()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
+    }
+}
+
+
+void Line2::Opposite(const FunctionCallbackInfo<Value> &info)
+{
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
+    try {
+        Line_2 &line = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Line2::New(isolate, line.opposite()));
+    }
+    catch (const exception &e) {
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }

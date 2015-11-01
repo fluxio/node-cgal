@@ -16,15 +16,17 @@ public:
     // Add our function templates to the package exports, and return string to be used to name
     // the class and constructor in JS.  Called indirectly at module load time via the module
     // init function.
-    static void RegisterMethods();
+    static void RegisterMethods(v8::Isolate *isolate);
 
     // Attempt to parse a v8 argument into the CGAL object referred to by receiver.  Returns true
     // if parse was successful, false otherwise.
-    static bool ParseArg(v8::Local<v8::Value> arg, Arrangement_2::Vertex_handle &receiver);
+    static bool ParseArg(v8::Isolate *isolate, v8::Local<v8::Value> arg, Arrangement_2::Vertex_handle &receiver);
 
     // Convert a CGAL object of the wrapped class to a POD v8 object.  If precise is set to false,
     // will attempt to render in terms of doubles for coordinates, and may lose precision.
-    static v8::Handle<v8::Value> ToPOD(const Arrangement_2::Vertex_handle &Vertex, bool precise=true);
+    static v8::Local<v8::Value> ToPOD(
+        v8::Isolate *isolate, const Arrangement_2::Vertex_handle &Vertex, bool precise=true
+    );
 
 private:
 
@@ -33,15 +35,15 @@ private:
     //      the semantics and names of the wrapped CGAL class.
     //
 
-    static v8::Handle<v8::Value> ToString(const v8::Arguments &args);
-    static v8::Handle<v8::Value> IsAtOpenBoundary(const v8::Arguments &args);
-    static v8::Handle<v8::Value> IsIsolated(const v8::Arguments &args);
-    static v8::Handle<v8::Value> Degree(const v8::Arguments &args);
-    static v8::Handle<v8::Value> IncidentHalfedges(const v8::Arguments &args);
-    static v8::Handle<v8::Value> Face(const v8::Arguments &args);
-    static v8::Handle<v8::Value> Point(const v8::Arguments &args);
-    static v8::Handle<v8::Value> ParameterSpaceInX(const v8::Arguments &args);
-    static v8::Handle<v8::Value> ParameterSpaceInY(const v8::Arguments &args);
+    static void ToString(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void IsAtOpenBoundary(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void IsIsolated(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void Degree(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void IncidentHalfedges(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void Face(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void Point(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void ParameterSpaceInX(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void ParameterSpaceInY(const v8::FunctionCallbackInfo<v8::Value> &info);
 
 };
 

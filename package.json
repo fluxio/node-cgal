@@ -1,6 +1,6 @@
 {
   "name": "node-cgal",
-  "version": "4.4.0",
+  "version": "4.7.0",
   "description": "CGAL bindings for node.js",
   "keywords": [
     "CGAL",
@@ -18,7 +18,7 @@
     "clean": "node-gyp clean && rm -rf build"
   },
   "engines": {
-    "node": ">=0.10.7"
+    "node": ">=5.0.0"
   },
   "os": [ "darwin", "linux" ],
   "cpu": [ "x64" ]

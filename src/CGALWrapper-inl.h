@@ -7,7 +7,7 @@
 
 
 template<typename WrapperClass, typename CGALClass>
-v8::Persistent<v8::FunctionTemplate> CGALWrapper<WrapperClass, CGALClass>::sConstructorTemplate;
+v8::Global<v8::FunctionTemplate> CGALWrapper<WrapperClass, CGALClass>::sConstructorTemplate;
 
 
 template<typename WrapperClass, typename CGALClass>
@@ -24,8 +24,11 @@ CGALWrapper<WrapperClass, CGALClass>::~CGALWrapper()
 
 template<typename WrapperClass, typename CGALClass>
 template<typename ParentScope>
-void CGALWrapper<WrapperClass, CGALClass>::Init(v8::Handle<ParentScope> exports)
+void CGALWrapper<WrapperClass, CGALClass>::Init(v8::Local<ParentScope> exports)
 {
+    v8::Isolate *isolate = v8::Isolate::GetCurrent();
+    v8::HandleScope scope(isolate);
+
     // In some circumstances, our module init gets called more than once within the same process by
     // node.  We need to be careful to avoid re-initializing our static constructor template,
     // otherwise we can get type detection failures against objects constructed with the previous
@@ -33,44 +36,48 @@ void CGALWrapper<WrapperClass, CGALClass>::Init(v8::Handle<ParentScope> exports)
 
     if (sConstructorTemplate.IsEmpty()) {
 
-        sConstructorTemplate = v8::Persistent<v8::FunctionTemplate>::New(
-            v8::FunctionTemplate::New(CGALWrapper<WrapperClass, CGALClass>::New)
-        );
+        v8::Local<v8::FunctionTemplate> constructorTemplate
+            = v8::FunctionTemplate::New(isolate, CGALWrapper<WrapperClass, CGALClass>::New);
 
-        node::SetPrototypeMethod(sConstructorTemplate, "toPOD", CGALWrapper<WrapperClass, CGALClass>::ToPOD);
-        node::SetPrototypeMethod(sConstructorTemplate, "inspect", CGALWrapper<WrapperClass, CGALClass>::Inspect);
-        node::SetPrototypeMethod(sConstructorTemplate, "toString", CGALWrapper<WrapperClass, CGALClass>::ToString);
+        sConstructorTemplate.Reset(isolate, constructorTemplate);
 
-        WrapperClass::RegisterMethods();
+        NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "toPOD", CGALWrapper<WrapperClass, CGALClass>::ToPOD);
+        NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "inspect", CGALWrapper<WrapperClass, CGALClass>::Inspect);
+        NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "toString", CGALWrapper<WrapperClass, CGALClass>::ToString);
 
-        sConstructorTemplate->InstanceTemplate()->SetInternalFieldCount(1);
-        sConstructorTemplate->SetClassName(v8::String::NewSymbol(WrapperClass::Name));
+        WrapperClass::RegisterMethods(isolate);
+
+        constructorTemplate->InstanceTemplate()->SetInternalFieldCount(1);
+        constructorTemplate->SetClassName(v8::String::NewFromUtf8(isolate, WrapperClass::Name));
 
     }
 
-    exports->Set(v8::String::NewSymbol(WrapperClass::Name), sConstructorTemplate->GetFunction());
+    exports->Set(
+        v8::String::NewFromUtf8(isolate, WrapperClass::Name),
+        sConstructorTemplate.Get(isolate)->GetFunction()
+    );
 }
 
 
 template<typename WrapperClass, typename CGALClass>
-v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::New(const CGALClass &CGALInstance)
+v8::Local<v8::Value> CGALWrapper<WrapperClass, CGALClass>::New(v8::Isolate *isolate, const CGALClass &CGALInstance)
 {
-    v8::HandleScope scope;
-    v8::Local<v8::Object> wrapper = sConstructorTemplate->GetFunction()->NewInstance();
+    v8::EscapableHandleScope scope(isolate);
+    v8::Local<v8::Object> wrapper = sConstructorTemplate.Get(isolate)->GetFunction()->NewInstance();
     CGALClass &wrapped = ExtractWrapped(wrapper);
     wrapped = CGALInstance;
-    return scope.Close(wrapper);
+    return scope.Escape(wrapper);
 }
 
 
 template<typename NumberPrimitive>
-bool ParseArg(v8::Local<v8::Value> obj, NumberPrimitive &parsed)
+bool ParseArg(v8::Isolate *isolate, v8::Local<v8::Value> obj, NumberPrimitive &parsed)
 {
     if (obj->IsNumber()) {
         parsed = obj->NumberValue();
         return true;
     } else if (obj->IsString()) {
-        std::istringstream str(*v8::String::AsciiValue(obj));
+        std::istringstream str(*v8::String::Utf8Value(obj));
         str >> parsed;
         return !str.fail();
     } else {
@@ -81,31 +88,35 @@ bool ParseArg(v8::Local<v8::Value> obj, NumberPrimitive &parsed)
 
 template<typename WrapperClass, typename CGALClass>
 template<typename ForwardIterator>
-v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::SeqToPOD(
+v8::Local<v8::Value> CGALWrapper<WrapperClass, CGALClass>::SeqToPOD(
+    v8::Isolate *isolate,
     ForwardIterator first, ForwardIterator last,
     bool precise)
 {
-    v8::HandleScope scope;
-    v8::Local<v8::Array> array = v8::Array::New();
+    v8::EscapableHandleScope scope(isolate);
+    v8::Local<v8::Array> array = v8::Array::New(isolate);
     ForwardIterator it;
     uint32_t i;
     for(it=first,i=0; it!=last; ++it,++i) {
-        array->Set(i, WrapperClass::ToPOD(*it, precise));
+        array->Set(i, WrapperClass::ToPOD(isolate, *it, precise));
     }
-    return scope.Close(array);
+    return scope.Escape(array);
 }
 
 
 template<typename WrapperClass, typename CGALClass>
 template<typename OutputIterator>
-bool CGALWrapper<WrapperClass, CGALClass>::ParseSeqArg(v8::Local<v8::Value> arg, OutputIterator iterator)
+bool CGALWrapper<WrapperClass, CGALClass>::ParseSeqArg(
+    v8::Isolate *isolate,
+    v8::Local<v8::Value> arg,
+    OutputIterator iterator)
 {
-    v8::HandleScope scope;
+    v8::HandleScope scope(isolate);
     if (!arg->IsArray()) return false;
     v8::Local<v8::Array> wrappers = v8::Local<v8::Array>::Cast(arg);
     for(uint32_t i=0; i<wrappers->Length(); ++i) {
         CGALClass newCGALInstance;
-        if (WrapperClass::ParseArg(wrappers->Get(i), newCGALInstance)) {
+        if (WrapperClass::ParseArg(isolate, wrappers->Get(i), newCGALInstance)) {
             *(iterator++) = newCGALInstance;
         } else {
             return false;
@@ -116,64 +127,67 @@ bool CGALWrapper<WrapperClass, CGALClass>::ParseSeqArg(v8::Local<v8::Value> arg,
 
 
 template<typename WrapperClass, typename CGALClass>
-CGALClass &CGALWrapper<WrapperClass, CGALClass>::ExtractWrapped(v8::Handle<v8::Object> obj)
+CGALClass &CGALWrapper<WrapperClass, CGALClass>::ExtractWrapped(v8::Local<v8::Object> obj)
 {
     return node::ObjectWrap::Unwrap<WrapperClass>(obj)->mWrapped;
 }
 
 
 template<typename WrapperClass, typename CGALClass>
-v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::New(const v8::Arguments &args)
+void CGALWrapper<WrapperClass, CGALClass>::New(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-    v8::HandleScope scope;
+    v8::Isolate *isolate = info.GetIsolate();
 
-    ARGS_ASSERT(args.Length() <= 1);
+    ARGS_ASSERT(isolate, info.Length() <= 1);
 
     WrapperClass *wrapper = new WrapperClass();
 
-    if (args.Length() == 1) {
-        ARGS_ASSERT(WrapperClass::ParseArg(args[0], wrapper->mWrapped));
+    if (info.Length() == 1) {
+        ARGS_ASSERT(isolate, WrapperClass::ParseArg(isolate, info[0], wrapper->mWrapped));
     }
 
-    wrapper->Wrap(args.This());
+    wrapper->Wrap(info.This());
 
-    return scope.Close(args.This());
+    info.GetReturnValue().Set(info.This());
 }
 
 
 template<typename WrapperClass, typename CGALClass>
-v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::ToPOD(const v8::Arguments &args)
+void CGALWrapper<WrapperClass, CGALClass>::ToPOD(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-    v8::HandleScope scope;
-    WrapperClass *wrapper = ObjectWrap::Unwrap<WrapperClass>(args.This());
-    ARGS_ASSERT(args.Length() <= 1)
+    v8::Isolate *isolate = info.GetIsolate();
+    v8::HandleScope scope(isolate);
+    WrapperClass *wrapper = ObjectWrap::Unwrap<WrapperClass>(info.This());
+    ARGS_ASSERT(isolate, info.Length() <= 1)
 
     bool precise = true;
-    if (args.Length() == 1) {
-        ARGS_ASSERT(args[0]->IsBoolean())
-        precise = args[0]->BooleanValue();
+    if (info.Length() == 1) {
+        ARGS_ASSERT(isolate, info[0]->IsBoolean())
+        precise = info[0]->BooleanValue();
     }
 
-    return scope.Close(WrapperClass::ToPOD(wrapper->mWrapped, precise));
+    info.GetReturnValue().Set(WrapperClass::ToPOD(isolate, wrapper->mWrapped, precise));
 }
 
 
 template<typename WrapperClass, typename CGALClass>
-v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::Inspect(const v8::Arguments &args)
+void CGALWrapper<WrapperClass, CGALClass>::Inspect(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-    v8::HandleScope scope;
-    return scope.Close(args.This()->ToString());
+    v8::Isolate *isolate = info.GetIsolate();
+    v8::HandleScope scope(isolate);
+    info.GetReturnValue().Set(info.This()->ToString());
 }
 
 
 template<typename WrapperClass, typename CGALClass>
-v8::Handle<v8::Value> CGALWrapper<WrapperClass, CGALClass>::ToString(const v8::Arguments &args)
+void CGALWrapper<WrapperClass, CGALClass>::ToString(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-    v8::HandleScope scope;
-    CGALClass &wrapped = ExtractWrapped(args.This());
+    v8::Isolate *isolate = info.GetIsolate();
+    v8::HandleScope scope(isolate);
+    CGALClass &wrapped = ExtractWrapped(info.This());
     std::ostringstream str;
     str << "[object "  << WrapperClass::Name << " " << wrapped << "]";
-    return scope.Close(v8::String::New(str.str().c_str()));
+    info.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, str.str().c_str()));
 }
 
 

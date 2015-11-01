@@ -1,15 +1,22 @@
+sudo: required
+dist: trusty
 language: node_js
 node_js:
-  - "0.10"
+  - 5.0.0
+addons:
+  apt:
+    packages:
+    - libgmp-dev
+    - libmpfr-dev
+    - libboost-all-dev
 before_install:
-  - sudo apt-get update -q
-  - sudo apt-get install -q libgmp-dev libmpfr-dev libboost-all-dev
-  - curl https://gforge.inria.fr/frs/download.php/33525/CGAL-4.4.tar.gz | tar zxv
-  - (cd CGAL-4.4; CXXFLAGS=-fPIC cmake -DBUILD_SHARED_LIBS=FALSE .; make CGAL)
+  - curl -L https://github.com/CGAL/cgal/archive/releases/CGAL-4.7.tar.gz | tar zx
+  - mkdir $TRAVIS_BUILD_DIR/cgal-releases-CGAL-4.7/installed
+  - (cd cgal-releases-CGAL-4.7; CXXFLAGS=-fPIC cmake -DBUILD_SHARED_LIBS=FALSE -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/cgal-releases-CGAL-4.7/installed .; make install)
 env:
   global:
-    CGAL_GYP_LDFLAGS: -L$TRAVIS_BUILD_DIR/CGAL-4.4/lib
-    CGAL_GYP_INCLUDES: $TRAVIS_BUILD_DIR/CGAL-4.4/include
+    CGAL_GYP_LDFLAGS: -L$TRAVIS_BUILD_DIR/cgal-releases-CGAL-4.7/installed/lib
+    CGAL_GYP_INCLUDES: $TRAVIS_BUILD_DIR/cgal-releases-CGAL-4.7/installed/include
   matrix:
     -
     - GGAL_USE_EPECK=1

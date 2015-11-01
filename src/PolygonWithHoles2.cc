@@ -10,18 +10,22 @@ using namespace std;
 const char *PolygonWithHoles2::Name = "PolygonWithHoles2";
 
 
-void PolygonWithHoles2::RegisterMethods()
+void PolygonWithHoles2::RegisterMethods(Isolate *isolate)
 {
-    SetPrototypeMethod(sConstructorTemplate, "isEqual", IsEqual);
-    SetPrototypeMethod(sConstructorTemplate, "outer", Outer);
-    SetPrototypeMethod(sConstructorTemplate, "holes", Holes);
-    SetPrototypeMethod(sConstructorTemplate, "isUnbounded", IsUnbounded);
+    HandleScope scope(isolate);
+    Local<FunctionTemplate> constructorTemplate = sConstructorTemplate.Get(isolate);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isEqual", IsEqual);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "outer", Outer);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "holes", Holes);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isUnbounded", IsUnbounded);
 }
 
 
-bool PolygonWithHoles2::ParseArg(Local<Value> arg, Polygon_with_holes_2 &receiver)
+bool PolygonWithHoles2::ParseArg(Isolate *isolate, Local<Value> arg, Polygon_with_holes_2 &receiver)
 {
-    if (sConstructorTemplate->HasInstance(arg)) {
+    HandleScope scope(isolate);
+
+    if (sConstructorTemplate.Get(isolate)->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
@@ -32,14 +36,14 @@ bool PolygonWithHoles2::ParseArg(Local<Value> arg, Polygon_with_holes_2 &receive
         Polygon_2 outer;
         vector<Polygon_2> holes;
 
-        if (Polygon2::ParseArg(inits->Get(String::NewSymbol("outer")), outer) &&
-            Polygon2::ParseSeqArg(inits->Get(String::NewSymbol("holes")), back_inserter(holes)))
+        if (Polygon2::ParseArg(isolate, inits->Get(SYMBOL(isolate, "outer")), outer) &&
+            Polygon2::ParseSeqArg(isolate, inits->Get(SYMBOL(isolate, "holes")), back_inserter(holes)))
         {
             receiver = Polygon_with_holes_2(outer, holes.begin(), holes.end());
             return true;
         }
 
-        if (Polygon2::ParseArg(arg, outer)) {
+        if (Polygon2::ParseArg(isolate, arg, outer)) {
             receiver = Polygon_with_holes_2(outer);
             return true;
         }
@@ -50,71 +54,75 @@ bool PolygonWithHoles2::ParseArg(Local<Value> arg, Polygon_with_holes_2 &receive
 }
 
 
-Handle<Value> PolygonWithHoles2::ToPOD(const Polygon_with_holes_2 &poly, bool precise)
+Local<Value> PolygonWithHoles2::ToPOD(Isolate *isolate, const Polygon_with_holes_2 &poly, bool precise)
 {
-    HandleScope scope;
-    Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("outer"), Polygon2::ToPOD(poly.outer_boundary(), precise));
-    obj->Set(String::NewSymbol("holes"), Polygon2::SeqToPOD(poly.holes_begin(), poly.holes_end(), precise));
-    return scope.Close(obj);
+    EscapableHandleScope scope(isolate);
+    Local<Object> obj = Object::New(isolate);
+    obj->Set(SYMBOL(isolate, "outer"), Polygon2::ToPOD(isolate, poly.outer_boundary(), precise));
+    obj->Set(SYMBOL(isolate, "holes"), Polygon2::SeqToPOD(isolate, poly.holes_begin(), poly.holes_end(), precise));
+    return scope.Escape(obj);
 }
 
 
-Handle<Value> PolygonWithHoles2::IsEqual(const Arguments &args)
+void PolygonWithHoles2::IsEqual(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Polygon_with_holes_2 &thisPoly = ExtractWrapped(args.This());
-        ARGS_ASSERT(args.Length() == 1);
-        ARGS_PARSE_LOCAL(PolygonWithHoles2::ParseArg, Polygon_with_holes_2, otherPoly, args[0]);
-        return scope.Close(Boolean::New(thisPoly == otherPoly));
+        Polygon_with_holes_2 &thisPoly = ExtractWrapped(info.This());
+        ARGS_ASSERT(isolate, info.Length() == 1);
+        ARGS_PARSE_LOCAL(isolate, PolygonWithHoles2::ParseArg, Polygon_with_holes_2, otherPoly, info[0]);
+        info.GetReturnValue().Set(Boolean::New(isolate, thisPoly == otherPoly));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> PolygonWithHoles2::Outer(const Arguments &args)
+void PolygonWithHoles2::Outer(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Polygon_with_holes_2 &poly = ExtractWrapped(args.This());
-        return scope.Close(Polygon2::New(poly.outer_boundary()));
+        Polygon_with_holes_2 &poly = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Polygon2::New(isolate, poly.outer_boundary()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> PolygonWithHoles2::Holes(const Arguments &args)
+void PolygonWithHoles2::Holes(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Polygon_with_holes_2 &poly = ExtractWrapped(args.This());
-        Local<Array> array = Array::New();
+        Polygon_with_holes_2 &poly = ExtractWrapped(info.This());
+        Local<Array> array = Array::New(isolate);
         uint32_t i;
         Polygon_with_holes_2::Hole_const_iterator it;
         for(it=poly.holes_begin(),i=0; it!=poly.holes_end(); ++it,++i) {
-            array->Set(i, Polygon2::New(*it));
+            array->Set(i, Polygon2::New(isolate, *it));
         }
-        return scope.Close(array);
+        info.GetReturnValue().Set(array);
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> PolygonWithHoles2::IsUnbounded(const Arguments &args)
+void PolygonWithHoles2::IsUnbounded(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Polygon_with_holes_2 &poly = ExtractWrapped(args.This());
-        return scope.Close(Boolean::New(poly.is_unbounded()));
+        Polygon_with_holes_2 &poly = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Boolean::New(isolate, poly.is_unbounded()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }

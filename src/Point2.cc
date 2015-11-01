@@ -11,18 +11,20 @@ using namespace std;
 const char *Point2::Name = "Point2";
 
 
-void Point2::RegisterMethods()
+void Point2::RegisterMethods(Isolate *isolate)
 {
-    SetPrototypeMethod(sConstructorTemplate, "isEqual", IsEqual);
-    SetPrototypeMethod(sConstructorTemplate, "x", X);
-    SetPrototypeMethod(sConstructorTemplate, "y", Y);
-    SetPrototypeMethod(sConstructorTemplate, "transform", Transform);
+    HandleScope scope(isolate);
+    Local<FunctionTemplate> constructorTemplate = sConstructorTemplate.Get(isolate);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isEqual", IsEqual);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "x", X);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "y", Y);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "transform", Transform);
 }
 
 
-bool Point2::ParseArg(Local<Value> arg, Point_2 &receiver)
+bool Point2::ParseArg(Isolate *isolate, Local<Value> arg, Point_2 &receiver)
 {
-    if (sConstructorTemplate->HasInstance(arg)) {
+    if (sConstructorTemplate.Get(isolate)->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
@@ -31,8 +33,8 @@ bool Point2::ParseArg(Local<Value> arg, Point_2 &receiver)
         Local<Array> coords = Local<Array>::Cast(arg);
 
         K::FT x, y;
-        if (::ParseArg(coords->Get(0), x) &&
-            ::ParseArg(coords->Get(1), y))
+        if (::ParseArg(isolate, coords->Get(0), x) &&
+            ::ParseArg(isolate, coords->Get(1), y))
         {
             receiver = Point_2(x, y);
             return true;
@@ -44,10 +46,10 @@ bool Point2::ParseArg(Local<Value> arg, Point_2 &receiver)
 }
 
 
-Handle<Value> Point2::ToPOD(const Point_2 &point, bool precise)
+Local<Value> Point2::ToPOD(Isolate *isolate, const Point_2 &point, bool precise)
 {
-    HandleScope scope;
-    Local<Array> array = Array::New(2);
+    EscapableHandleScope scope(isolate);
+    Local<Array> array = Array::New(isolate, 2);
 
     if (precise) {
 
@@ -57,7 +59,7 @@ Handle<Value> Point2::ToPOD(const Point_2 &point, bool precise)
 #else
         x_str << setprecision(20) << point.x();
 #endif
-        array->Set(0, String::New(x_str.str().c_str()));
+        array->Set(0, String::NewFromUtf8(isolate, x_str.str().c_str()));
 
         ostringstream y_str;
 #if CGAL_USE_EPECK
@@ -65,75 +67,77 @@ Handle<Value> Point2::ToPOD(const Point_2 &point, bool precise)
 #else
         y_str << setprecision(20) << point.y();
 #endif
-        array->Set(1, String::New(y_str.str().c_str()));
+        array->Set(1, String::NewFromUtf8(isolate, y_str.str().c_str()));
 
     } else {
-        array->Set(0, Number::New(CGAL::to_double(point.cartesian(0))));
-        array->Set(1, Number::New(CGAL::to_double(point.cartesian(1))));
+        array->Set(0, Number::New(isolate, CGAL::to_double(point.cartesian(0))));
+        array->Set(1, Number::New(isolate, CGAL::to_double(point.cartesian(1))));
     }
 
-    return scope.Close(array);
+    return scope.Escape(array);
 }
 
 
-Handle<Value> Point2::IsEqual(const Arguments &args)
+void Point2::IsEqual(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Point_2 &thisPoint = ExtractWrapped(args.This());
-        ARGS_ASSERT(args.Length() == 1);
-        ARGS_PARSE_LOCAL(Point2::ParseArg, Point_2, otherPoint, args[0]);
-        return scope.Close(Boolean::New(thisPoint == otherPoint));
+        Point_2 &thisPoint = ExtractWrapped(info.This());
+        ARGS_ASSERT(isolate, info.Length() == 1);
+        ARGS_PARSE_LOCAL(isolate, Point2::ParseArg, Point_2, otherPoint, info[0]);
+        info.GetReturnValue().Set(Boolean::New(isolate, thisPoint == otherPoint));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Point2::X(const Arguments &args)
+void Point2::X(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Point_2 &point = ExtractWrapped(args.This());
-        return scope.Close(Number::New(CGAL::to_double(point.x())));
+        Point_2 &point = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Number::New(isolate, CGAL::to_double(point.x())));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Point2::Y(const Arguments &args)
+void Point2::Y(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Point_2 &point = ExtractWrapped(args.This());
-        return scope.Close(Number::New(CGAL::to_double(point.y())));
+        Point_2 &point = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Number::New(isolate, CGAL::to_double(point.y())));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Point2::Transform(const Arguments &args)
+void Point2::Transform(const FunctionCallbackInfo<Value> &info)
 {
-  HandleScope scope;
-  try {
-    Point_2 &point = ExtractWrapped(args.This());
-    ARGS_ASSERT(args.Length() == 1);
-
-
-    Aff_transformation_2 afft;
-    if (AffTransformation2::ParseArg(args[0], afft)) {
-      Point_2 new_point = point.transform(afft);
-      return scope.Close(New(new_point));
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
+    try {
+        Point_2 &point = ExtractWrapped(info.This());
+        ARGS_ASSERT(isolate, info.Length() == 1);
+        Aff_transformation_2 afft;
+        if (AffTransformation2::ParseArg(isolate, info[0], afft)) {
+            Point_2 new_point = point.transform(afft);
+            info.GetReturnValue().Set(New(isolate, new_point));
+            return;
+        }
+        ARGS_ASSERT(isolate, false);
     }
-
-    ARGS_ASSERT(false);
-  }
-  catch (const exception &e) {
-    return ThrowException(String::New(e.what()));
-  }
+    catch (const exception &e) {
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
+    }
 }

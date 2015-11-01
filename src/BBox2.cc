@@ -9,16 +9,20 @@ using namespace std;
 const char *BBox2::Name = "BBox2";
 
 
-void BBox2::RegisterMethods()
+void BBox2::RegisterMethods(Isolate *isolate)
 {
-    SetPrototypeMethod(sConstructorTemplate, "overlaps", Overlaps);
-    SetPrototypeMethod(sConstructorTemplate, "add", Add);
+    HandleScope scope(isolate);
+    Local<FunctionTemplate> constructorTemplate = sConstructorTemplate.Get(isolate);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "overlaps", Overlaps);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "add", Add);
 }
 
 
-bool BBox2::ParseArg(Local<Value> arg, Bbox_2 &receiver)
+bool BBox2::ParseArg(Isolate *isolate, Local<Value> arg, Bbox_2 &receiver)
 {
-    if (sConstructorTemplate->HasInstance(arg)) {
+    HandleScope scope(isolate);
+
+    if (sConstructorTemplate.Get(isolate)->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
@@ -26,16 +30,16 @@ bool BBox2::ParseArg(Local<Value> arg, Bbox_2 &receiver)
     if (arg->IsObject()) {
         Local<Object> bounds = Local<Object>::Cast(arg);
 
-        if (bounds->Get(String::NewSymbol("xmin"))->IsNumber() &&
-            bounds->Get(String::NewSymbol("ymin"))->IsNumber() &&
-            bounds->Get(String::NewSymbol("xmax"))->IsNumber() &&
-            bounds->Get(String::NewSymbol("ymax"))->IsNumber())
+        if (bounds->Get(SYMBOL(isolate, "xmin"))->IsNumber() &&
+            bounds->Get(SYMBOL(isolate, "ymin"))->IsNumber() &&
+            bounds->Get(SYMBOL(isolate, "xmax"))->IsNumber() &&
+            bounds->Get(SYMBOL(isolate, "ymax"))->IsNumber())
         {
             receiver = Bbox_2(
-                bounds->Get(String::NewSymbol("xmin"))->NumberValue(),
-                bounds->Get(String::NewSymbol("ymin"))->NumberValue(),
-                bounds->Get(String::NewSymbol("xmax"))->NumberValue(),
-                bounds->Get(String::NewSymbol("ymax"))->NumberValue()
+                bounds->Get(SYMBOL(isolate, "xmin"))->NumberValue(),
+                bounds->Get(SYMBOL(isolate, "ymin"))->NumberValue(),
+                bounds->Get(SYMBOL(isolate, "xmax"))->NumberValue(),
+                bounds->Get(SYMBOL(isolate, "ymax"))->NumberValue()
             );
             return true;
         }
@@ -46,43 +50,45 @@ bool BBox2::ParseArg(Local<Value> arg, Bbox_2 &receiver)
 }
 
 
-Handle<Value> BBox2::ToPOD(const Bbox_2 &box, bool precise)
+Local<Value> BBox2::ToPOD(Isolate *isolate, const Bbox_2 &box, bool precise)
 {
-    HandleScope scope;
-    Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("xmin"), Number::New(box.xmin()));
-    obj->Set(String::NewSymbol("ymin"), Number::New(box.ymin()));
-    obj->Set(String::NewSymbol("xmax"), Number::New(box.xmax()));
-    obj->Set(String::NewSymbol("ymax"), Number::New(box.ymax()));
-    return scope.Close(obj);
+    EscapableHandleScope scope(isolate);
+    Local<Object> obj = Object::New(isolate);
+    obj->Set(SYMBOL(isolate, "xmin"), Number::New(isolate, box.xmin()));
+    obj->Set(SYMBOL(isolate, "ymin"), Number::New(isolate, box.ymin()));
+    obj->Set(SYMBOL(isolate, "xmax"), Number::New(isolate, box.xmax()));
+    obj->Set(SYMBOL(isolate, "ymax"), Number::New(isolate, box.ymax()));
+    return scope.Escape(obj);
 }
 
 
-v8::Handle<v8::Value> BBox2::Overlaps(const v8::Arguments &args)
+void BBox2::Overlaps(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Bbox_2 &thisBox = ExtractWrapped(args.This());
-        ARGS_ASSERT(args.Length() == 1);
-        ARGS_PARSE_LOCAL(BBox2::ParseArg, Bbox_2, otherBox, args[0]);
-        return scope.Close(Boolean::New(do_overlap(thisBox, otherBox)));
+        Bbox_2 &thisBox = ExtractWrapped(info.This());
+        ARGS_ASSERT(isolate, info.Length() == 1);
+        ARGS_PARSE_LOCAL(isolate, BBox2::ParseArg, Bbox_2, otherBox, info[0]);
+        return info.GetReturnValue().Set(Boolean::New(isolate, do_overlap(thisBox, otherBox)));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-v8::Handle<v8::Value> BBox2::Add(const v8::Arguments &args)
+void BBox2::Add(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Bbox_2 &thisBox = ExtractWrapped(args.This());
-        ARGS_ASSERT(args.Length() == 1);
-        ARGS_PARSE_LOCAL(BBox2::ParseArg, Bbox_2, otherBox, args[0]);
-        return scope.Close(BBox2::New(thisBox + otherBox));
+        Bbox_2 &thisBox = ExtractWrapped(info.This());
+        ARGS_ASSERT(isolate, info.Length() == 1);
+        ARGS_PARSE_LOCAL(isolate, BBox2::ParseArg, Bbox_2, otherBox, info[0]);
+        return info.GetReturnValue().Set(BBox2::New(isolate, thisBox + otherBox));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }

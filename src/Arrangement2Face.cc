@@ -11,20 +11,22 @@ using namespace std;
 const char *Arrangement2Face::Name = "Face";
 
 
-void Arrangement2Face::RegisterMethods()
+void Arrangement2Face::RegisterMethods(Isolate *isolate)
 {
-    SetPrototypeMethod(sConstructorTemplate, "toString", ToString);
-    SetPrototypeMethod(sConstructorTemplate, "isFictitious", IsFictitious);
-    SetPrototypeMethod(sConstructorTemplate, "isUnbounded", IsUnbounded);
-    SetPrototypeMethod(sConstructorTemplate, "outerCCB", OuterCCB);
-    SetPrototypeMethod(sConstructorTemplate, "holes", Holes);
-    SetPrototypeMethod(sConstructorTemplate, "isolatedVertices", IsolatedVertices);
+    HandleScope scope(isolate);
+    Local<FunctionTemplate> constructorTemplate = sConstructorTemplate.Get(isolate);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "toString", ToString);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isFictitious", IsFictitious);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isUnbounded", IsUnbounded);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "outerCCB", OuterCCB);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "holes", Holes);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isolatedVertices", IsolatedVertices);
 }
 
 
-bool Arrangement2Face::ParseArg(Local<Value> arg, Arrangement_2::Face_handle &receiver)
+bool Arrangement2Face::ParseArg(Isolate *isolate, Local<Value> arg, Arrangement_2::Face_handle &receiver)
 {
-    if (sConstructorTemplate->HasInstance(arg)) {
+    if (sConstructorTemplate.Get(isolate)->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
@@ -33,18 +35,19 @@ bool Arrangement2Face::ParseArg(Local<Value> arg, Arrangement_2::Face_handle &re
 }
 
 
-Handle<Value> Arrangement2Face::ToPOD(const Arrangement_2::Face_handle &face, bool precise)
+Local<Value> Arrangement2Face::ToPOD(Isolate *isolate, const Arrangement_2::Face_handle &face, bool precise)
 {
-    HandleScope scope;
-    Local<Object> obj = Object::New();
-    return scope.Close(obj);
+    EscapableHandleScope scope(isolate);
+    Local<Object> obj = Object::New(isolate);
+    return scope.Escape(obj);
 }
 
 
-Handle<Value> Arrangement2Face::ToString(const v8::Arguments &args)
+void Arrangement2Face::ToString(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-    HandleScope scope;
-    Arrangement_2::Face_handle &face = ExtractWrapped(args.This());
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
+    Arrangement_2::Face_handle &face = ExtractWrapped(info.This());
     ostringstream str;
     str << "[object "  << Name << " " << face.ptr() << " ";
     if (face->is_fictitious()) {
@@ -67,98 +70,103 @@ Handle<Value> Arrangement2Face::ToString(const v8::Arguments &args)
     Arrangement_2::Isolated_vertex_iterator i;
     for(i=face->isolated_vertices_begin(); i!=face->isolated_vertices_end(); ++i,++numisolated) {}
     str << "I:" << numisolated << "]";
-    return scope.Close(String::New(str.str().c_str()));
+    info.GetReturnValue().Set(String::NewFromUtf8(isolate, str.str().c_str()));
 }
 
 
-Handle<Value> Arrangement2Face::IsFictitious(const v8::Arguments &args)
+void Arrangement2Face::IsFictitious(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Arrangement_2::Face_handle &face = ExtractWrapped(args.This());
-        return scope.Close(Boolean::New(face->is_fictitious()));
+        Arrangement_2::Face_handle &face = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Boolean::New(isolate, face->is_fictitious()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Arrangement2Face::IsUnbounded(const v8::Arguments &args)
+void Arrangement2Face::IsUnbounded(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Arrangement_2::Face_handle &face = ExtractWrapped(args.This());
-        return scope.Close(Boolean::New(face->is_unbounded()));
+        Arrangement_2::Face_handle &face = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Boolean::New(isolate, face->is_unbounded()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Arrangement2Face::OuterCCB(const v8::Arguments &args)
+void Arrangement2Face::OuterCCB(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    EscapableHandleScope scope(isolate);
     try {
-        Arrangement_2::Face_handle &face = ExtractWrapped(args.This());
-        Local<Array> array = Array::New();
+        Arrangement_2::Face_handle &face = ExtractWrapped(info.This());
+        Local<Array> array = Array::New(isolate);
         if (face->has_outer_ccb()) {
             Arrangement_2::Ccb_halfedge_circulator first, curr;
             first = curr = face->outer_ccb();
             uint32_t i = 0;
             do {
-                array->Set(i, Arrangement2Halfedge::New(curr));
+                array->Set(i, Arrangement2Halfedge::New(isolate, curr));
             } while(++i,++curr != first);
         }
-        return scope.Close(array);
+        info.GetReturnValue().Set(scope.Escape(array));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Arrangement2Face::Holes(const v8::Arguments &args)
+void Arrangement2Face::Holes(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    EscapableHandleScope scope(isolate);
     try {
-        Arrangement_2::Face_handle &face = ExtractWrapped(args.This());
-        Local<Array> array = Array::New();
+        Arrangement_2::Face_handle &face = ExtractWrapped(info.This());
+        Local<Array> array = Array::New(isolate);
         Arrangement_2::Hole_iterator it;
         uint32_t i;
         for(it=face->holes_begin(),i=0; it!=face->holes_end(); ++it,++i) {
-            Local<Array> hole = Array::New();
+            Local<Array> hole = Array::New(isolate);
             array->Set(i, hole);
             Arrangement_2::Ccb_halfedge_circulator first, curr;
             first = curr = *it;
             uint32_t j = 0;
             do {
-                hole->Set(j, Arrangement2Halfedge::New(curr));
+                hole->Set(j, Arrangement2Halfedge::New(isolate, curr));
             } while(++j,++curr != first);
         }
-        return scope.Close(array);
+        info.GetReturnValue().Set(scope.Escape(array));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Arrangement2Face::IsolatedVertices(const v8::Arguments &args)
+void Arrangement2Face::IsolatedVertices(const v8::FunctionCallbackInfo<v8::Value> &info)
 {
-    HandleScope scope;
+    Isolate* isolate = info.GetIsolate();
+    EscapableHandleScope scope(isolate);
     try {
-        Arrangement_2::Face_handle &face = ExtractWrapped(args.This());
-        Local<Array> array = Array::New();
+        Arrangement_2::Face_handle &face = ExtractWrapped(info.This());
+        Local<Array> array = Array::New(isolate);
         Arrangement_2::Isolated_vertex_iterator it;
         uint32_t i;
         for(it=face->isolated_vertices_begin(),i=0; it!=face->isolated_vertices_end(); ++it,++i) {
-            array->Set(i, Arrangement2Vertex::New(it));
+            array->Set(i, Arrangement2Vertex::New(isolate, it));
         }
-        return scope.Close(array);
+        info.GetReturnValue().Set(scope.Escape(array));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }

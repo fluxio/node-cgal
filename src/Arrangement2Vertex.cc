@@ -13,23 +13,25 @@ using namespace std;
 const char *Arrangement2Vertex::Name = "Vertex";
 
 
-void Arrangement2Vertex::RegisterMethods()
+void Arrangement2Vertex::RegisterMethods(Isolate *isolate)
 {
-    SetPrototypeMethod(sConstructorTemplate, "toString", ToString);
-    SetPrototypeMethod(sConstructorTemplate, "isAtOpenBoundary", IsAtOpenBoundary);
-    SetPrototypeMethod(sConstructorTemplate, "isIsolated", IsIsolated);
-    SetPrototypeMethod(sConstructorTemplate, "degree", Degree);
-    SetPrototypeMethod(sConstructorTemplate, "incidentHalfedges", IncidentHalfedges);
-    SetPrototypeMethod(sConstructorTemplate, "face", Face);
-    SetPrototypeMethod(sConstructorTemplate, "point", Point);
-    SetPrototypeMethod(sConstructorTemplate, "parameterSpaceInX", ParameterSpaceInX);
-    SetPrototypeMethod(sConstructorTemplate, "parameterSpaceInY", ParameterSpaceInY);
+    HandleScope scope(isolate);
+    Local<FunctionTemplate> constructorTemplate = sConstructorTemplate.Get(isolate);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "toString", ToString);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isAtOpenBoundary", IsAtOpenBoundary);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isIsolated", IsIsolated);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "degree", Degree);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "incidentHalfedges", IncidentHalfedges);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "face", Face);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "point", Point);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "parameterSpaceInX", ParameterSpaceInX);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "parameterSpaceInY", ParameterSpaceInY);
 }
 
 
-bool Arrangement2Vertex::ParseArg(Local<Value> arg, Arrangement_2::Vertex_handle &receiver)
+bool Arrangement2Vertex::ParseArg(Isolate *isolate, Local<Value> arg, Arrangement_2::Vertex_handle &receiver)
 {
-    if (sConstructorTemplate->HasInstance(arg)) {
+    if (sConstructorTemplate.Get(isolate)->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
@@ -38,18 +40,19 @@ bool Arrangement2Vertex::ParseArg(Local<Value> arg, Arrangement_2::Vertex_handle
 }
 
 
-Handle<Value> Arrangement2Vertex::ToPOD(const Arrangement_2::Vertex_handle &vertex, bool precise)
+Local<Value> Arrangement2Vertex::ToPOD(Isolate *isolate, const Arrangement_2::Vertex_handle &vertex, bool precise)
 {
-    HandleScope scope;
-    Local<Object> obj = Object::New();
-    return scope.Close(obj);
+    EscapableHandleScope scope(isolate);
+    Local<Object> obj = Object::New(isolate);
+    return scope.Escape(obj);
 }
 
 
-Handle<Value> Arrangement2Vertex::ToString(const v8::Arguments &args)
+void Arrangement2Vertex::ToString(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
-    Arrangement_2::Vertex_handle &vertex = ExtractWrapped(args.This());
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
+    Arrangement_2::Vertex_handle &vertex = ExtractWrapped(info.This());
     ostringstream str;
     str << "[object "  << Name << " " << vertex.ptr() <<" ";
     if (vertex->is_at_open_boundary()) {
@@ -80,116 +83,124 @@ Handle<Value> Arrangement2Vertex::ToString(const v8::Arguments &args)
         str << vertex->point();
     }
     str << "]";
-    return scope.Close(String::New(str.str().c_str()));
+    info.GetReturnValue().Set(String::NewFromUtf8(isolate, str.str().c_str()));
 }
 
 
-Handle<Value> Arrangement2Vertex::IsAtOpenBoundary(const v8::Arguments &args)
+void Arrangement2Vertex::IsAtOpenBoundary(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(args.This());
-        return scope.Close(Boolean::New(vertex->is_at_open_boundary()));
+        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Boolean::New(isolate, vertex->is_at_open_boundary()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Arrangement2Vertex::IsIsolated(const v8::Arguments &args)
+void Arrangement2Vertex::IsIsolated(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(args.This());
-        return scope.Close(Boolean::New(vertex->is_isolated()));
+        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Boolean::New(isolate, vertex->is_isolated()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Arrangement2Vertex::Degree(const v8::Arguments &args)
+void Arrangement2Vertex::Degree(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(args.This());
-        return scope.Close(Integer::New(vertex->degree()));
+        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Integer::New(isolate, vertex->degree()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Arrangement2Vertex::IncidentHalfedges(const v8::Arguments &args)
+void Arrangement2Vertex::IncidentHalfedges(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(args.This());
-        Local<Array> array = Array::New();
+        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(info.This());
+        Local<Array> array = Array::New(isolate);
         Arrangement_2::Halfedge_around_vertex_circulator first, curr;
         first = curr = vertex->incident_halfedges();
         uint32_t i = 0;
         do {
-            array->Set(i, Arrangement2Halfedge::New(curr));
+            array->Set(i, Arrangement2Halfedge::New(isolate, curr));
         } while(++i,++curr != first);
-        return scope.Close(array);
+        info.GetReturnValue().Set(array);
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Arrangement2Vertex::Face(const v8::Arguments &args)
+void Arrangement2Vertex::Face(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(args.This());
-        return scope.Close(Arrangement2Face::New(vertex->face()));
+        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Arrangement2Face::New(isolate, vertex->face()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Arrangement2Vertex::Point(const v8::Arguments &args)
+void Arrangement2Vertex::Point(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(args.This());
-        return scope.Close(Point2::New(vertex->point()));
+        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Point2::New(isolate, vertex->point()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Arrangement2Vertex::ParameterSpaceInX(const v8::Arguments &args)
+void Arrangement2Vertex::ParameterSpaceInX(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(args.This());
-        return scope.Close(Integer::New(vertex->parameter_space_in_x()));
+        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Integer::New(isolate, vertex->parameter_space_in_x()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Arrangement2Vertex::ParameterSpaceInY(const v8::Arguments &args)
+void Arrangement2Vertex::ParameterSpaceInY(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(args.This());
-        return scope.Close(Integer::New(vertex->parameter_space_in_y()));
+        Arrangement_2::Vertex_handle &vertex = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Integer::New(isolate, vertex->parameter_space_in_y()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }

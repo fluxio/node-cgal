@@ -3,6 +3,7 @@
 
 #include "cgal_types.h"
 #include "node.h"
+#include "node_object_wrap.h"
 #include "v8.h"
 
 
@@ -15,31 +16,33 @@ public:
     virtual ~CGALWrapper();
 
     template<typename ParentScope>
-    static void Init(v8::Handle<ParentScope> exports);
+    static void Init(v8::Local<ParentScope> exports);
 
-    static v8::Handle<v8::Value> New(const CGALClass &CGALInstance);
+    static v8::Local<v8::Value> New(v8::Isolate *isolate, const CGALClass &CGALInstance);
 
     template<typename NumberPrimitive>
-    static bool ParseArg(v8::Local<v8::Value> arg, NumberPrimitive &parsed);
+    static bool ParseArg(v8::Isolate *isolate, v8::Local<v8::Value> arg, NumberPrimitive &parsed);
 
     template<typename OutputIterator>
-    static bool ParseSeqArg(v8::Local<v8::Value> arg, OutputIterator iterator);
+    static bool ParseSeqArg(v8::Isolate *isolate, v8::Local<v8::Value> arg, OutputIterator iterator);
 
     template<typename ForwardIterator>
-    static v8::Handle<v8::Value> SeqToPOD(ForwardIterator first, ForwardIterator last, bool precise);
+    static v8::Local<v8::Value> SeqToPOD(
+        v8::Isolate *isolate, ForwardIterator first, ForwardIterator last, bool precise
+    );
 
 protected:
 
     CGALClass mWrapped;
 
-    static v8::Persistent<v8::FunctionTemplate> sConstructorTemplate;
+    static v8::Global<v8::FunctionTemplate> sConstructorTemplate;
 
-    static CGALClass &ExtractWrapped(v8::Handle<v8::Object> obj);
+    static CGALClass &ExtractWrapped(v8::Local<v8::Object> obj);
 
-    static v8::Handle<v8::Value> New(const v8::Arguments &args);
-    static v8::Handle<v8::Value> ToPOD(const v8::Arguments &args);
-    static v8::Handle<v8::Value> Inspect(const v8::Arguments &args);
-    static v8::Handle<v8::Value> ToString(const v8::Arguments &args);
+    static void New(const v8::FunctionCallbackInfo<v8::Value> &args);
+    static void ToPOD(const v8::FunctionCallbackInfo<v8::Value> &args);
+    static void Inspect(const v8::FunctionCallbackInfo<v8::Value> &args);
+    static void ToString(const v8::FunctionCallbackInfo<v8::Value> &args);
 
 };
 

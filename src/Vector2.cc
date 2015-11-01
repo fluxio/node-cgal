@@ -13,32 +13,34 @@ using namespace std;
 const char *Vector2::Name = "Vector2";
 
 
-void Vector2::RegisterMethods()
+void Vector2::RegisterMethods(Isolate *isolate)
 {
 }
 
 
-bool Vector2::ParseArg(Local<Value> arg, Vector_2 &receiver)
+bool Vector2::ParseArg(Isolate *isolate, Local<Value> arg, Vector_2 &receiver)
 {
-    if (sConstructorTemplate->HasInstance(arg)) {
+    HandleScope scope(isolate);
+
+    if (sConstructorTemplate.Get(isolate)->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
 
     Line_2 line;
-    if (Line2::ParseArg(arg, line)) {
+    if (Line2::ParseArg(isolate, arg, line)) {
         receiver = Vector_2(line);
         return true;
     }
 
     Segment_2 segment;
-    if (Segment2::ParseArg(arg, segment)) {
+    if (Segment2::ParseArg(isolate, arg, segment)) {
         receiver = Vector_2(segment);
         return true;
     }
 
     Ray_2 ray;
-    if (Ray2::ParseArg(arg, ray)) {
+    if (Ray2::ParseArg(isolate, arg, ray)) {
         receiver = Vector_2(ray);
         return true;
     }
@@ -47,8 +49,8 @@ bool Vector2::ParseArg(Local<Value> arg, Vector_2 &receiver)
         Local<Object> inits = Local<Object>::Cast(arg);
 
         K::FT x, y;
-        if (::ParseArg(inits->Get(String::NewSymbol("x")), x) &&
-            ::ParseArg(inits->Get(String::NewSymbol("y")), y))
+        if (::ParseArg(isolate, inits->Get(SYMBOL(isolate, "x")), x) &&
+            ::ParseArg(isolate, inits->Get(SYMBOL(isolate, "y")), y))
         {
             receiver = Vector_2(x, y);
             return true;
@@ -60,10 +62,10 @@ bool Vector2::ParseArg(Local<Value> arg, Vector_2 &receiver)
 }
 
 
-Handle<Value> Vector2::ToPOD(const Vector_2 &vector, bool precise)
+Local<Value> Vector2::ToPOD(Isolate *isolate, const Vector_2 &vector, bool precise)
 {
-    HandleScope scope;
-    Local<Object> obj = Object::New();
+    EscapableHandleScope scope(isolate);
+    Local<Object> obj = Object::New(isolate);
 
     if (precise) {
 
@@ -73,7 +75,7 @@ Handle<Value> Vector2::ToPOD(const Vector_2 &vector, bool precise)
 #else
         xstr << setprecision(20) << vector.x();
 #endif
-        obj->Set(String::NewSymbol("x"), String::New(xstr.str().c_str()));
+        obj->Set(SYMBOL(isolate, "x"), String::NewFromUtf8(isolate, xstr.str().c_str()));
 
         ostringstream ystr;
 #if CGAL_USE_EPECK
@@ -81,12 +83,12 @@ Handle<Value> Vector2::ToPOD(const Vector_2 &vector, bool precise)
 #else
         ystr << setprecision(20) << vector.y();
 #endif
-        obj->Set(String::NewSymbol("y"), String::New(ystr.str().c_str()));
+        obj->Set(SYMBOL(isolate, "y"), String::NewFromUtf8(isolate, ystr.str().c_str()));
 
     } else {
-        obj->Set(String::NewSymbol("x"), Number::New(CGAL::to_double(vector.x())));
-        obj->Set(String::NewSymbol("y"), Number::New(CGAL::to_double(vector.y())));
+        obj->Set(SYMBOL(isolate, "x"), Number::New(isolate, CGAL::to_double(vector.x())));
+        obj->Set(SYMBOL(isolate, "y"), Number::New(isolate, CGAL::to_double(vector.y())));
     }
 
-    return scope.Close(obj);
+    return scope.Escape(obj);
 }

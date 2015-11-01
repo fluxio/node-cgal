@@ -13,41 +13,45 @@ using namespace std;
 const char *Curve2::Name = "Curve2";
 
 
-void Curve2::RegisterMethods()
+void Curve2::RegisterMethods(Isolate *isolate)
 {
-    SetPrototypeMethod(sConstructorTemplate, "isSegment", IsSegment);
-    SetPrototypeMethod(sConstructorTemplate, "segment", Segment);
-    SetPrototypeMethod(sConstructorTemplate, "isRay", IsRay);
-    SetPrototypeMethod(sConstructorTemplate, "ray", Ray);
-    SetPrototypeMethod(sConstructorTemplate, "isLine", IsLine);
-    SetPrototypeMethod(sConstructorTemplate, "line", Line);
-    SetPrototypeMethod(sConstructorTemplate, "supportingLine", SupportingLine);
-    SetPrototypeMethod(sConstructorTemplate, "source", Source);
-    SetPrototypeMethod(sConstructorTemplate, "target", Target);
+    HandleScope scope(isolate);
+    Local<FunctionTemplate> constructorTemplate = sConstructorTemplate.Get(isolate);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isSegment", IsSegment);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "segment", Segment);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isRay", IsRay);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "ray", Ray);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "isLine", IsLine);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "line", Line);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "supportingLine", SupportingLine);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "source", Source);
+    NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "target", Target);
 }
 
 
-bool Curve2::ParseArg(Local<Value> arg, Curve_2 &receiver)
+bool Curve2::ParseArg(Isolate *isolate, Local<Value> arg, Curve_2 &receiver)
 {
-    if (sConstructorTemplate->HasInstance(arg)) {
+    HandleScope scope(isolate);
+
+    if (sConstructorTemplate.Get(isolate)->HasInstance(arg)) {
         receiver = ExtractWrapped(Local<Object>::Cast(arg));
         return true;
     }
 
     Segment_2 segment;
-    if (Segment2::ParseArg(arg, segment)) {
+    if (Segment2::ParseArg(isolate, arg, segment)) {
         receiver = Curve_2(segment);
         return true;
     }
 
     Line_2 line;
-    if (Line2::ParseArg(arg, line)) {
+    if (Line2::ParseArg(isolate, arg, line)) {
         receiver = Curve_2(line);
         return true;
     }
 
     Ray_2 ray;
-    if (Ray2::ParseArg(arg, ray)) {
+    if (Ray2::ParseArg(isolate, arg, ray)) {
         receiver = Curve_2(ray);
         return true;
     }
@@ -56,126 +60,135 @@ bool Curve2::ParseArg(Local<Value> arg, Curve_2 &receiver)
 }
 
 
-Handle<Value> Curve2::ToPOD(const Curve_2 &curve, bool precise)
+Local<Value> Curve2::ToPOD(Isolate *isolate, const Curve_2 &curve, bool precise)
 {
-    HandleScope scope;
-    Local<Object> obj = Object::New();
-    return scope.Close(obj);
+    EscapableHandleScope scope(isolate);
+    Local<Object> obj = Object::New(isolate);
+    return scope.Escape(obj);
 }
 
 
-Handle<Value> Curve2::IsSegment(const v8::Arguments &args)
+void Curve2::IsSegment(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Curve_2 &curve = ExtractWrapped(args.This());
-        return scope.Close(Boolean::New(curve.is_segment()));
+        Curve_2 &curve = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Boolean::New(isolate, curve.is_segment()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
-    }
-}
-
-
-Handle<Value> Curve2::Segment(const v8::Arguments &args)
-{
-    HandleScope scope;
-    try {
-        Curve_2 &curve = ExtractWrapped(args.This());
-        return scope.Close(Segment2::New(curve.segment()));
-    }
-    catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Curve2::IsRay(const v8::Arguments &args)
+void Curve2::Segment(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Curve_2 &curve = ExtractWrapped(args.This());
-        return scope.Close(Boolean::New(curve.is_ray()));
+        Curve_2 &curve = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Segment2::New(isolate, curve.segment()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Curve2::Ray(const v8::Arguments &args)
+void Curve2::IsRay(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Curve_2 &curve = ExtractWrapped(args.This());
-        return scope.Close(Ray2::New(curve.ray()));
+        Curve_2 &curve = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Boolean::New(isolate, curve.is_ray()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Curve2::IsLine(const v8::Arguments &args)
+void Curve2::Ray(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Curve_2 &curve = ExtractWrapped(args.This());
-        return scope.Close(Boolean::New(curve.is_line()));
+        Curve_2 &curve = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Ray2::New(isolate, curve.ray()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Curve2::Line(const v8::Arguments &args)
+void Curve2::IsLine(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Curve_2 &curve = ExtractWrapped(args.This());
-        return scope.Close(Line2::New(curve.line()));
+        Curve_2 &curve = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Boolean::New(isolate, curve.is_line()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Curve2::SupportingLine(const v8::Arguments &args)
+void Curve2::Line(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Curve_2 &curve = ExtractWrapped(args.This());
-        return scope.Close(Line2::New(curve.supporting_line()));
+        Curve_2 &curve = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Line2::New(isolate, curve.line()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Curve2::Source(const v8::Arguments &args)
+void Curve2::SupportingLine(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Curve_2 &curve = ExtractWrapped(args.This());
-        return scope.Close(Point2::New(curve.source()));
+        Curve_2 &curve = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Line2::New(isolate, curve.supporting_line()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }
 
 
-Handle<Value> Curve2::Target(const v8::Arguments &args)
+void Curve2::Source(const FunctionCallbackInfo<Value> &info)
 {
-    HandleScope scope;
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
     try {
-        Curve_2 &curve = ExtractWrapped(args.This());
-        return scope.Close(Point2::New(curve.target()));
+        Curve_2 &curve = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Point2::New(isolate, curve.source()));
     }
     catch (const exception &e) {
-        return ThrowException(String::New(e.what()));
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
+    }
+}
+
+
+void Curve2::Target(const FunctionCallbackInfo<Value> &info)
+{
+    Isolate *isolate = info.GetIsolate();
+    HandleScope scope(isolate);
+    try {
+        Curve_2 &curve = ExtractWrapped(info.This());
+        info.GetReturnValue().Set(Point2::New(isolate, curve.target()));
+    }
+    catch (const exception &e) {
+        isolate->ThrowException(String::NewFromUtf8(isolate, e.what()));
     }
 }

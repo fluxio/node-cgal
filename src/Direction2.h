@@ -16,15 +16,15 @@ public:
     // Add our function templates to the package exports, and return string to be used to name
     // the class and constructor in JS.  Called indirectly at module load time via the module
     // init function.
-    static void RegisterMethods();
+    static void RegisterMethods(v8::Isolate *isolate);
 
     // Attempt to parse a v8 argument into the CGAL object referred to by receiver.  Returns true
     // if parse was successful, false otherwise.
-    static bool ParseArg(v8::Local<v8::Value> arg, Direction_2 &receiver);
+    static bool ParseArg(v8::Isolate *isolate, v8::Local<v8::Value> arg, Direction_2 &receiver);
 
     // Convert a CGAL object of the wrapped class to a POD v8 object.  If precise is set to false,
     // will attempt to render in terms of doubles for coordinates, and may lose precision.
-    static v8::Handle<v8::Value> ToPOD(const Direction_2 &direction, bool precise=true);
+    static v8::Local<v8::Value> ToPOD(v8::Isolate *isolate, const Direction_2 &direction, bool precise=true);
 
 private:
 
@@ -33,14 +33,14 @@ private:
     //      the semantics and names of the wrapped CGAL class.
     //
 
-    static v8::Handle<v8::Value> IsEqual(const v8::Arguments &args);
-    static v8::Handle<v8::Value> IsLessThan(const v8::Arguments &args);
-    static v8::Handle<v8::Value> IsGreaterThan(const v8::Arguments &args);
-    static v8::Handle<v8::Value> IsCCWBetween(const v8::Arguments &args);
-    static v8::Handle<v8::Value> Opposite(const v8::Arguments &args);
-    static v8::Handle<v8::Value> ToVector(const v8::Arguments &args);
-    static v8::Handle<v8::Value> DX(const v8::Arguments &args);
-    static v8::Handle<v8::Value> DY(const v8::Arguments &args);
+    static void IsEqual(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void IsLessThan(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void IsGreaterThan(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void IsCCWBetween(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void Opposite(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void ToVector(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void DX(const v8::FunctionCallbackInfo<v8::Value> &info);
+    static void DY(const v8::FunctionCallbackInfo<v8::Value> &info);
 
 };
 
